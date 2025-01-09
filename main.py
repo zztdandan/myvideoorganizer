@@ -14,6 +14,7 @@ from config import Config
 from core.logger import logger
 from core.planner import OperationPlanner
 from core.executor import OperationExecutor
+from core.scraper import JavDBScraper
 
 class VideoOrganizerCLI:
     """视频整理器命令行接口"""
@@ -23,6 +24,7 @@ class VideoOrganizerCLI:
         self.config = Config.load_config()
         self.planner = OperationPlanner(self.config)
         self.executor = OperationExecutor(self.config)
+        self.scraper = JavDBScraper()
         
     def _handle_preview_mode(self, operations: List[Dict[str, str]]) -> bool:
         """
@@ -111,6 +113,44 @@ class VideoOrganizerCLI:
         else:
             logger.error(f"Unknown mode: {mode}")
             return False
+        
+    def scrape_movie_info(self, query: str) -> bool:
+        """
+        抓取影片信息
+        
+        Args:
+            query: 搜索关键词
+            
+        Returns:
+            是否成功
+        """
+        # 首先搜索影片列表
+        results = self.scraper.search_movie(query)
+        if not results:
+            logger.error(f"未找到影片信息: {query}")
+            return False
+            
+        # 如果找到结果，打印搜索结果
+        print("\n搜索结果:")
+        print(json.dumps(results, ensure_ascii=False, indent=2))
+        
+        # 如果有详情页URL，获取详细信息
+        if results.get('detail_url'):
+            print("\n获取详细信息...")
+            info = self.scraper.get_movie_detail(results['detail_url'])
+            if info:
+                print("\n详细信息:")
+                print(json.dumps(info, ensure_ascii=False, indent=2))
+                
+                # 如果有封面图片，下载它
+                if 'cover_url' in info:
+                    cover_path = Path(f"{info.get('number', 'unknown')}_cover.jpg")
+                    if self.scraper.download_cover(info['cover_url'], cover_path):
+                        logger.info(f"封面已保存到: {cover_path}")
+                        
+                return True
+                
+        return False
 
 class VideoOrganizerHandler(BaseHTTPRequestHandler):
     """HTTP请求处理器"""
@@ -164,15 +204,17 @@ def main():
     """主函数"""
     parser = argparse.ArgumentParser(description='Video folder organizer')
     
-    parser.add_argument('function', nargs='?', choices=['func1', 'func2', 'func3'],
-                      help='Function to execute')
+    parser.add_argument('function', nargs='?', 
+                       choices=['func1', 'func2', 'func3', 'scrape'],
+                       help='Function to execute')
     parser.add_argument('--mode', choices=['preview', 'json'],
-                      default='preview', help='Execution mode')
+                       default='preview', help='Execution mode')
     parser.add_argument('--json', help='JSON file path for execution')
     parser.add_argument('--http', action='store_true',
-                      help='Start HTTP server')
+                       help='Start HTTP server')
     parser.add_argument('--port', type=int, default=8080,
-                      help='HTTP server port')
+                       help='HTTP server port')
+    parser.add_argument('--query', help='Search query for scraping')
     
     args = parser.parse_args()
     
@@ -180,19 +222,18 @@ def main():
     if args.http:
         run_http_server(args.port)
         return
-    
-#     # 预览模式执行功能1
-# GET http://localhost:8080/organize?function=func1&mode=preview
-
-# # JSON模式执行功能2
-# GET http://localhost:8080/organize?function=func2&mode=json
-
-# # 执行JSON文件
-# GET http://localhost:8080/organize?json_path=/path/to/operations.json
+        
     # 命令行模式
     cli = VideoOrganizerCLI()
     
-    success = cli.run_function(args.function, args.mode, args.json)
+    if args.function == 'scrape':
+        if not args.query:
+            logger.error("使用scrape功能时必须提供--query参数")
+            sys.exit(1)
+        success = cli.scrape_movie_info(args.query)
+    else:
+        success = cli.run_function(args.function, args.mode, args.json)
+        
     sys.exit(0 if success else 1)
 
 if __name__ == '__main__':

@@ -323,6 +323,11 @@ class OperationPlanner:
             for idx, video in enumerate(videos):
                 if idx >= len(pattern):
                     break
+                
+                # 检查文件名是否已经包含cd后缀
+                current_name = video.stem.lower()
+                if '-cd' in current_name:
+                    continue
                         
                 new_name = f"{common_prefix}-cd{pattern[idx]}{video.suffix}"
                 new_path = video.parent / new_name

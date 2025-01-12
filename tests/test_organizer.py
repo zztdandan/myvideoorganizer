@@ -2,6 +2,7 @@
 """
 视频整理功能单元测试
 """
+import sys
 import pytest
 from pathlib import Path
 from core.planner import OperationPlanner
@@ -11,9 +12,8 @@ from config import Config
 class TestVideoOrganizer:
     """视频整理功能测试类"""
     
-    @pytest.fixture(autouse=True)
-    def setup(self):
-        """测试初始化"""
+    def __init__(self):
+        """初始化测试类"""
         self.config = Config.load_config()
         self.planner = OperationPlanner(self.config)
         self.executor = OperationExecutor(self.config)
@@ -72,6 +72,44 @@ class TestVideoOrganizer:
             
         return operations
         
+    def test_func4_actor_classify(self):
+        """
+        功能4测试：按演员分类视频文件夹
+        使用方法：将此方法复制后修改路径运行，观察输出结果是否符合预期
+        """
+        # 生成分类计划
+        operations = self.planner.generate_actor_classify_plan()
+        
+        # 打印计划内容供检查
+        print("\n=== 功能4：演员分类计划 ===")
+        for op in operations:
+            source_path = Path(op['source'])
+            dest_path = Path(op['destination'])
+            print(f"\n将移动: {source_path}")
+            print(f"到: {dest_path}")
+            print(f"文件夹大小: {op['file_size']} MB")
+            
+        return operations
+        
+    def test_func5_big_video(self):
+        """
+        功能5测试：识别和移动超宽视频
+        使用方法：将此方法复制后修改路径运行，观察输出结果是否符合预期
+        """
+        # 生成超宽视频处理计划
+        operations = self.planner.generate_big_video_plan()
+        
+        # 打印计划内容供检查
+        print("\n=== 功能5：超宽视频处理计划 ===")
+        for op in operations:
+            source_path = Path(op['source'])
+            dest_path = Path(op['destination'])
+            print(f"\n将移动: {source_path}")
+            print(f"到: {dest_path}")
+            print(f"文件夹大小: {op['file_size']} MB")
+            
+        return operations
+        
     def execute_test_operations(self, operations, preview_only=True):
         """
         执行测试操作
@@ -97,7 +135,7 @@ def run_test(function_name: str, execute: bool = False):
     运行指定的测试功能
     
     Args:
-        function_name: 功能名称 ('func1', 'func2', 或 'func3')
+        function_name: 功能名称 ('func1', 'func2', 'func3', 'func4', 或 'func5')
         execute: 是否执行操作（默认False，仅预览）
     """
     tester = TestVideoOrganizer()
@@ -108,6 +146,10 @@ def run_test(function_name: str, execute: bool = False):
         operations = tester.test_func2_file_cleanup()
     elif function_name == 'func3':
         operations = tester.test_func3_video_rename()
+    elif function_name == 'func4':
+        operations = tester.test_func4_actor_classify()
+    elif function_name == 'func5':
+        operations = tester.test_func5_big_video()
     else:
         print(f"未知功能: {function_name}")
         return
@@ -119,10 +161,16 @@ if __name__ == '__main__':
     """
     使用示例：
     1. 预览功能1的操作计划：
-       run_test('func1')
+       python test_organizer.py func1
     2. 执行功能2的操作：
-       run_test('func2', True)
+       python test_organizer.py func2 --execute
     """
-    # 在这里直接调用你想测试的功能
-    # 例如：run_test('func1')
-    run_test('func1')
+    # 解析命令行参数
+    if len(sys.argv) < 2:
+        print("请指定要测试的功能：func1, func2, func3, func4, 或 func5")
+        sys.exit(1)
+        
+    function_name = sys.argv[1]
+    execute = "--execute" in sys.argv[2:] if len(sys.argv) > 2 else False
+    
+    run_test(function_name, execute)

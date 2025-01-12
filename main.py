@@ -45,27 +45,35 @@ class VideoOrganizerCLI:
             return failure == 0
         return True
         
-    def _handle_json_mode(self, operations: List[Dict[str, str]], 
-                         function_name: str) -> bool:
+    def _handle_json_mode(self, operations: List[Dict[str, str]], function: str) -> bool:
         """
         处理JSON模式
         
         Args:
             operations: 操作列表
-            function_name: 功能名称
+            function: 功能名称
             
         Returns:
-            是否执行成功
+            是否成功
         """
         if not operations:
-            logger.info("No operations planned.")
-            return True
+            logger.info("No operations to save.")
+            return False
             
-        json_path = self.planner.save_operations(operations, function_name)
-        if json_path:
-            logger.info(f"Operations saved to: {json_path}")
-            return True
-        return False
+        json_paths = self.planner.save_operations(operations, function)
+        if not json_paths:
+            logger.error("Failed to save operations to JSON.")
+            return False
+            
+        # 输出生成的JSON文件路径
+        if len(json_paths) == 1:
+            logger.info(f"Operations saved to: {json_paths[0]}")
+        else:
+            logger.info(f"Operations saved to {len(json_paths)} files:")
+            for path in json_paths:
+                logger.info(f"  - {path}")
+                
+        return True
         
     def execute_json(self, json_path: str) -> bool:
         """
@@ -102,6 +110,10 @@ class VideoOrganizerCLI:
             operations = self.planner.generate_clean_files_plan()
         elif function == 'func3':
             operations = self.planner.generate_rename_plan()
+        elif function == 'func4':
+            operations = self.planner.generate_actor_classify_plan()
+        elif function == 'func5':
+            operations = self.planner.generate_big_video_plan()
         else:
             logger.error(f"Unknown function: {function}")
             return False
@@ -205,7 +217,7 @@ def main():
     parser = argparse.ArgumentParser(description='Video folder organizer')
     
     parser.add_argument('function', nargs='?', 
-                       choices=['func1', 'func2', 'func3', 'scrape'],
+                       choices=['func1', 'func2', 'func3', 'func4', 'func5', 'scrape'],
                        help='Function to execute')
     parser.add_argument('--mode', choices=['preview', 'json'],
                        default='preview', help='Execution mode')

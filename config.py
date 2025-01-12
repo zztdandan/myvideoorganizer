@@ -14,7 +14,7 @@ class BaseConfig:
     # 视频文件相关配置
     VIDEO_EXTENSIONS: Set[str] = {
         '.mp4', '.mkv', '.avi', '.wmv', '.mov', 
-        '.flv', '.rmvb', '.rm', '.3gp', '.m4v'
+        '.flv', '.rmvb', '.rm', '.3gp', '.m4v','.m2ts','.ts','.mpg'
     }
     MIN_VIDEO_SIZE_MB: int = 500
     
@@ -47,16 +47,31 @@ class BaseConfig:
     
     # JSON操作文件相关配置
     JSON_OUTPUT_DIR: str = 'operations'
+    JSON_BATCH_SIZE: int = 200  # 每个JSON文件包含的最大任务数
+    
+    # 超宽视频相关配置
+    BIG_VIDEO_DIR: str = 'BIG'  # 超宽视频存放目录
+    BIG_VIDEO_WIDTH_THRESHOLD: int = 2000  # 超宽视频宽度阈值
+    
+    # 演员分类相关配置
+    UNKNOWN_ACTOR_CATEGORY: str = '99'  # 未知演员分类
+    JAPANESE_ACTOR_CATEGORY: str = '0'  # 日文名演员分类
+    TITLE_MAX_LENGTH: int = 10  # 标题最大长度（用于文件夹命名）
     
     @classmethod
     def get_delete_base_dir(cls) -> Path:
         """获取删除文件的基础目录"""
         return Path(cls.ROOT_DIR) / cls.DELETE_DIR_NAME
+        
+    @classmethod
+    def get_big_video_dir(cls) -> Path:
+        """获取超宽视频存放目录"""
+        return Path(cls.ROOT_DIR) / cls.BIG_VIDEO_DIR
 
 class DevConfig(BaseConfig):
     """开发环境配置"""
     # 可以覆盖基础配置的任何属性
-    ROOT_DIR="Z:/JAV/atmp"
+    ROOT_DIR="Z:/JAV"
     DEFAULT_RENAME_PATTERN='number'
 class Config:
     """配置加载器"""

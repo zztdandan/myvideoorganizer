@@ -4,35 +4,14 @@
 from pathlib import Path
 from typing import List, Dict, Set
 from core.helpers import (
-    get_file_size_mb, is_image_file, is_nfo_file, is_video_file, get_delete_path
+    get_file_size_mb, is_image_file, is_nfo_file, is_video_file,
+    get_delete_path, is_video_folder
 )
 from .base_planner import BasePlanner
 
 class CleanPlanner(BasePlanner):
     """清理操作计划生成器"""
     
-    def _is_video_folder(self, folder_path: Path) -> bool:
-        """
-        判断是否为视频文件夹（递归检查）
-        
-        Args:
-            folder_path: 文件夹路径
-            
-        Returns:
-            是否为视频文件夹
-        """
-        if not folder_path.is_dir():
-            return False
-            
-        # 检查当前文件夹中的文件
-        for item in folder_path.iterdir():
-            if is_video_file(item, self.config):
-                return True
-            if item.is_dir() and self._is_video_folder(item):
-                return True
-                
-        return False
-        
     def _scan_non_video_folders(self, start_path: Path) -> List[Dict[str, str]]:
         """
         扫描并识别非视频文件夹
@@ -51,7 +30,7 @@ class CleanPlanner(BasePlanner):
         if '.delete' in start_path.parts:
             return operations
             
-        if not self._is_video_folder(start_path):
+        if not is_video_folder(start_path, self.config):
             # 计算文件夹总大小
             total_size = sum(get_file_size_mb(f) for f in start_path.rglob('*') if f.is_file())
             operations.append({
@@ -133,7 +112,7 @@ class CleanPlanner(BasePlanner):
             if is_video_file(item, self.config):
                 video_names.add(item.stem.lower())
                 
-        if not video_names and not self._is_video_folder(folder_path):
+        if not video_names and not is_video_folder(folder_path, self.config):
             for item in folder_path.iterdir():
                 if item.is_dir():
                     operations.extend(self._scan_video_folder_files(item))

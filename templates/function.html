@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ func_name }} - 视频文件组织系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- 确保先加载基础CSS，后加载Bootstrap扩展的CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-dt/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 侧边栏 -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar">
+                <div class="position-sticky pt-3">
+                    <div class="sidebar-header mb-4">
+                        <h3 class="text-light text-center">视频文件组织系统</h3>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('index') }}">
+                                <i class="bi bi-house-door me-2"></i>首页
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('config_page') }}">
+                                <i class="bi bi-gear me-2"></i>系统配置
+                            </a>
+                        </li>
+                        <li class="nav-item sidebar-heading">
+                            <span>功能列表</span>
+                        </li>
+                        {% for id, name in FUNCTION_NAMES.items() %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if id == func_id %}active{% endif %}" href="{{ url_for('function_page', func_id=id) }}">
+                                <i class="bi bi-{% if id == 'func1' %}folder-x
+                                            {% elif id == 'func2' %}files
+                                            {% elif id == 'func3' %}pencil-square
+                                            {% elif id == 'func4' %}person-badge
+                                            {% elif id == 'func5' %}film
+                                            {% else %}check2-square
+                                            {% endif %} me-2"></i>{{ name }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- 主内容区 -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="page-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4">
+                    <div>
+                        <h1 class="h2 mb-1">{{ func_name }}</h1>
+                        <p class="text-muted">{{ get_function_description(func_id) }}</p>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="form-check form-switch me-3">
+                            <input class="form-check-input" type="checkbox" id="debugModeSwitch">
+                            <label class="form-check-label" for="debugModeSwitch">使用测试数据</label>
+                        </div>
+                        <div class="dropdown me-2">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="pageSize" data-bs-toggle="dropdown" aria-expanded="false">
+                                每页显示
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="pageSize">
+                                <li><a class="dropdown-item page-size-item" href="#" data-size="10">10 条</a></li>
+                                <li><a class="dropdown-item page-size-item" href="#" data-size="25">25 条</a></li>
+                                <li><a class="dropdown-item page-size-item" href="#" data-size="50">50 条</a></li>
+                                <li><a class="dropdown-item page-size-item" href="#" data-size="100">100 条</a></li>
+                            </ul>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="refreshBtn">
+                            <i class="bi bi-arrow-clockwise me-1"></i> 刷新
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="content-container">
+                    <!-- 执行结果提示 -->
+                    <div class="alert alert-success d-none mb-4 fade-transition" role="alert" id="successAlert">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <i class="bi bi-check-circle-fill fs-3 me-3"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h4 class="alert-heading fw-bold mb-2">操作成功</h4>
+                                <p id="successMessage" class="mb-0"></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-danger d-none mb-4 fade-transition" role="alert" id="errorAlert">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <i class="bi bi-exclamation-triangle-fill fs-3 me-3"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h4 class="alert-heading fw-bold mb-2">操作失败</h4>
+                                <p id="errorMessage" class="mb-0"></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-0">操作列表</h5>
+                                    <small class="text-muted" id="operationCount"></small>
+                                </div>
+                                <div>
+                                    <div class="form-check form-switch d-inline-block me-3">
+                                        <input class="form-check-input" type="checkbox" id="selectAllCheckbox">
+                                        <label class="form-check-label" for="selectAllCheckbox">全选</label>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" id="executeBtn" disabled>
+                                        <i class="bi bi-play-fill me-1"></i> 执行选中操作
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover" id="operationsTable">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 5%">选择</th>
+                                            <th style="width: 10%">操作类型</th>
+                                            <th style="width: 35%">来源</th>
+                                            <th style="width: 35%">目标</th>
+                                            <th style="width: 15%">文件大小</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- 表格数据将由JavaScript动态填充 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="loadingIndicator" class="text-center p-4">
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <div class="loading me-3"></div>
+                                    <span>正在加载数据...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- 执行确认对话框 -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalLabel">执行确认</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-circle bg-warning bg-opacity-10 text-warning me-3">
+                            <i class="bi bi-exclamation-triangle fs-3"></i>
+                        </div>
+                        <h5 class="mb-0">确定要执行以下操作吗？</h5>
+                    </div>
+                    <p><span class="badge bg-primary rounded-pill" id="selectedOperationCount">0</span> 个操作已选中，操作执行后可能无法撤销。</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="confirmExecuteBtn">
+                        <i class="bi bi-check2 me-1"></i> 确认执行
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 移动端导航切换按钮 -->
+    <button class="mobile-nav-toggle" id="sidebarToggle">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- 调整脚本加载顺序，先加载jQuery，再加载DataTables -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // 功能页面专用脚本
+        $(document).ready(function() {
+            console.log("文档已准备就绪，开始初始化...");
+            const funcId = '{{ func_id }}';
+            let operations = []; // 存储所有操作
+            let dataTable; // DataTable实例
+            let selectedOperations = []; // 已选操作
+            
+            // 移动端侧边栏切换
+            $('#sidebarToggle').on('click', function() {
+                $('#sidebar').toggleClass('show');
+            });
+            
+            // 更新表格数据
+            function updateTable() {
+                console.log("更新表格数据，操作数量：", operations.length);
+                if (!dataTable) {
+                    console.error("DataTable实例未初始化!");
+                    return;
+                }
+                
+                $('#loadingIndicator').hide();
+                
+                dataTable.clear();
+                if (operations.length > 0) {
+                    dataTable.rows.add(operations).draw();
+                    $('#operationCount').text(`共 ${operations.length} 个操作`);
+                } else {
+                    // 添加一行空数据以显示"没有可用的操作"
+                    dataTable.row.add({
+                        action: '',
+                        source: '没有找到需要处理的项目',
+                        destination: '',
+                        file_size: ''
+                    }).draw();
+                    $('#operationCount').text('没有找到需要处理的项目');
+                }
+            }
+            
+            // 加载操作列表
+            function loadOperations() {
+                console.log("开始加载操作列表，功能ID:", funcId);
+                
+                // 清空选中操作
+                selectedOperations = [];
+                $('#executeBtn').prop('disabled', true);
+                $('#selectAllCheckbox').prop('checked', false);
+                
+                // 显示加载状态
+                $('#loadingIndicator').show();
+                
+                // 确定使用哪个API端点
+                const useTestMode = $('#debugModeSwitch').prop('checked');
+                const apiEndpoint = useTestMode ? `/api/test_plan/${funcId}` : `/api/plan/${funcId}`;
+                
+                console.log(`使用${useTestMode ? '测试' : '正常'}模式，API端点: ${apiEndpoint}`);
+                
+                axios.get(apiEndpoint)
+                    .then(function(response) {
+                        console.log("API返回数据:", response.data);
+                        operations = response.data;
+                        
+                        if (typeof logDebug === 'function') {
+                            logDebug('功能页面', `成功加载 ${operations.length} 个操作`, operations);
+                        }
+                        
+                        updateTable();
+                        // 隐藏错误提示
+                        $('#errorAlert').addClass('d-none');
+                    })
+                    .catch(function(error) {
+                        console.error('加载操作失败:', error);
+                        operations = [];
+                        $('#loadingIndicator').hide();
+                        
+                        // 如果DataTable已初始化，则更新表格
+                        if (dataTable) {
+                            updateTable();
+                        }
+                        
+                        // 显示错误信息
+                        $('#errorAlert').removeClass('d-none');
+                        
+                        let errorMessage = '加载操作失败';
+                        if (error.response && error.response.data) {
+                            if (typeof logDebug === 'function') {
+                                logDebug('功能页面', '后端返回错误', error.response.data);
+                            }
+                            if (error.response.data.error) {
+                                errorMessage = error.response.data.error;
+                            }
+                            if (error.response.data.suggestion) {
+                                errorMessage += `<br><span class="text-info">${error.response.data.suggestion}</span>`;
+                            }
+                        } else {
+                            errorMessage += `: ${error.message}`;
+                            if (typeof logDebug === 'function') {
+                                logDebug('功能页面', '前端错误', error.message);
+                            }
+                        }
+                        
+                        $('#errorMessage').html(errorMessage);
+                    });
+            }
+            
+            // 初始化DataTable - 使用简化配置以避免冲突
+            try {
+                console.log("初始化DataTable...");
+                // 先隐藏所有提示
+                $('#errorAlert').addClass('d-none');
+                $('#successAlert').addClass('d-none');
+                
+                // 简化DataTables初始化，减少可能的错误
+                dataTable = $('#operationsTable').DataTable({
+                    paging: true,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    lengthChange: false,
+                    pageLength: 25,
+                    language: {
+                        search: "搜索:",
+                        info: "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+                        infoEmpty: "显示第 0 至 0 项结果，共 0 项",
+                        zeroRecords: "没有匹配结果",
+                        emptyTable: "暂无可用数据",
+                        paginate: {
+                            first: "首页",
+                            previous: "上一页",
+                            next: "下一页",
+                            last: "末页"
+                        }
+                    },
+                    columnDefs: [
+                        {
+                            targets: 0,
+                            orderable: false,
+                            searchable: false,
+                            defaultContent: '<div class="form-check"><input class="form-check-input operation-checkbox" type="checkbox"></div>'
+                        },
+                        {
+                            targets: 1,
+                            data: 'action',
+                            render: function(data) {
+                                if (!data) return '';
+                                const actionLabels = {
+                                    'MOVE': '移动',
+                                    'RENAME': '重命名'
+                                };
+                                const actionIcons = {
+                                    'MOVE': 'arrow-right',
+                                    'RENAME': 'pencil'
+                                };
+                                const icon = actionIcons[data] || 'check';
+                                return `<span class="badge rounded-pill bg-${data === 'MOVE' ? 'primary' : 'success'} bg-opacity-10 text-${data === 'MOVE' ? 'primary' : 'success'} px-3 py-2">
+                                            <i class="bi bi-${icon} me-1"></i> ${actionLabels[data] || data}
+                                        </span>`;
+                            }
+                        },
+                        {
+                            targets: 2,
+                            data: 'source',
+                            defaultContent: '',
+                            render: function(data) {
+                                if (!data) return '';
+                                return `<div class="text-truncate" style="max-width: 350px;" title="${data}">
+                                           <i class="bi bi-file-earmark me-1 text-muted"></i> ${data}
+                                        </div>`;
+                            }
+                        },
+                        {
+                            targets: 3,
+                            data: 'destination',
+                            defaultContent: '',
+                            render: function(data) {
+                                if (!data) return '';
+                                return `<div class="text-truncate" style="max-width: 350px;" title="${data}">
+                                           <i class="bi bi-file-earmark-arrow-down me-1 text-muted"></i> ${data}
+                                        </div>`;
+                            }
+                        },
+                        {
+                            targets: 4,
+                            data: 'file_size',
+                            defaultContent: '',
+                            render: function(data) {
+                                if (data === undefined || data === null) return '';
+                                let sizeClass = 'text-muted';
+                                if (data > 2000) sizeClass = 'text-danger';
+                                else if (data > 1000) sizeClass = 'text-warning';
+                                else if (data > 500) sizeClass = 'text-success';
+                                
+                                return `<span class="${sizeClass}">
+                                           <i class="bi bi-hdd me-1"></i> ${data} MB
+                                        </span>`;
+                            }
+                        }
+                    ],
+                    dom: '<"d-flex justify-content-between align-items-center mb-3"f<"d-flex align-items-center"l>><"table-responsive"t><"d-flex justify-content-between"ip>',
+                    drawCallback: function() {
+                        // 为新生成的复选框添加动画效果
+                        $('.operation-checkbox').addClass('form-check-input-animated');
+                    }
+                });
+                console.log("DataTable初始化成功");
+                
+                // 监听选择框变更 - 使用委托事件处理
+                $('#operationsTable').on('change', '.operation-checkbox', function() {
+                    var rowIdx = $(this).closest('tr').index();
+                    
+                    if (this.checked) {
+                        // 添加到已选列表
+                        if (!selectedOperations.includes(rowIdx)) {
+                            selectedOperations.push(rowIdx);
+                        }
+                    } else {
+                        // 从已选列表中移除
+                        const index = selectedOperations.indexOf(rowIdx);
+                        if (index !== -1) {
+                            selectedOperations.splice(index, 1);
+                        }
+                    }
+                    
+                    // 更新全选状态
+                    if (selectedOperations.length === operations.length && operations.length > 0) {
+                        $('#selectAllCheckbox').prop('checked', true);
+                    } else {
+                        $('#selectAllCheckbox').prop('checked', false);
+                    }
+                    
+                    // 更新执行按钮状态
+                    $('#executeBtn').prop('disabled', selectedOperations.length === 0);
+                });
+                
+                // 全选/取消全选
+                $('#selectAllCheckbox').on('change', function() {
+                    const isChecked = this.checked;
+                    
+                    // 更新所有复选框
+                    $('.operation-checkbox').each(function() {
+                        $(this).prop('checked', isChecked);
+                    });
+                    
+                    if (isChecked && operations.length > 0) {
+                        // 全选
+                        selectedOperations = Array.from({length: operations.length}, (_, i) => i);
+                    } else {
+                        // 取消全选
+                        selectedOperations = [];
+                    }
+                    
+                    // 更新执行按钮状态
+                    $('#executeBtn').prop('disabled', selectedOperations.length === 0);
+                });
+                
+                // 刷新按钮点击
+                $('#refreshBtn').on('click', function() {
+                    // 添加旋转动画
+                    $(this).find('i').addClass('rotate-animation');
+                    loadOperations();
+                    
+                    // 1秒后移除动画
+                    setTimeout(function() {
+                        $('#refreshBtn').find('i').removeClass('rotate-animation');
+                    }, 1000);
+                });
+                
+                // 调试模式切换
+                $('#debugModeSwitch').on('change', function() {
+                    loadOperations();
+                });
+                
+                // 更改每页显示数量
+                $('.page-size-item').on('click', function(e) {
+                    e.preventDefault();
+                    const pageSize = parseInt($(this).data('size'));
+                    dataTable.page.len(pageSize).draw();
+                    $('#pageSize').text(`每页显示 ${pageSize} 条`);
+                });
+                
+                // 执行按钮点击
+                $('#executeBtn').on('click', function() {
+                    if (selectedOperations.length === 0) return;
+                    
+                    // 设置确认对话框内容
+                    $('#selectedOperationCount').text(selectedOperations.length);
+                    
+                    // 显示确认对话框
+                    const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+                    confirmModal.show();
+                });
+                
+                // 确认执行按钮点击
+                $('#confirmExecuteBtn').on('click', function() {
+                    // 添加加载状态
+                    const originalText = $(this).html();
+                    $(this).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>执行中...');
+                    $(this).prop('disabled', true);
+                    
+                    // 关闭确认对话框
+                    const confirmModal = bootstrap.Modal.getInstance(document.getElementById('confirmModal'));
+                    confirmModal.hide();
+                    
+                    // 获取选中的操作
+                    const opsToExecute = selectedOperations.map(idx => operations[idx]);
+                    
+                    // 执行操作
+                    axios.post('/api/execute', { operations: opsToExecute })
+                        .then(function(response) {
+                            $('#successAlert').removeClass('d-none');
+                            $('#errorAlert').addClass('d-none');
+                            $('#successMessage').text(`执行完成：${response.data.success} 个成功，${response.data.failure} 个失败`);
+                            
+                            // 执行完成后刷新操作列表
+                            loadOperations();
+                            
+                            // 恢复按钮状态
+                            $('#confirmExecuteBtn').html(originalText);
+                            $('#confirmExecuteBtn').prop('disabled', false);
+                            
+                            // 3秒后自动隐藏成功提示
+                            setTimeout(function() {
+                                $('#successAlert').addClass('fade-out');
+                                setTimeout(function() {
+                                    $('#successAlert').addClass('d-none').removeClass('fade-out');
+                                }, 500);
+                            }, 3000);
+                        })
+                        .catch(function(error) {
+                            $('#errorAlert').removeClass('d-none');
+                            $('#successAlert').addClass('d-none');
+                            $('#errorMessage').text('执行操作失败：' + (error.response?.data?.error || error.message));
+                            
+                            // 恢复按钮状态
+                            $('#confirmExecuteBtn').html(originalText);
+                            $('#confirmExecuteBtn').prop('disabled', false);
+                        });
+                });
+                
+                // 初始加载
+                console.log("初始化完成，开始加载操作列表");
+                loadOperations();
+                
+            } catch (error) {
+                console.error("DataTable初始化失败:", error);
+                $('#loadingIndicator').hide();
+                $('#errorAlert').removeClass('d-none');
+                $('#errorMessage').html(`初始化表格失败: ${error.message}<br><span class="text-info">请刷新页面重试</span>`);
+            }
+        });
+    </script>
+    <style>
+        .icon-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 复选框动画 */
+        .form-check-input-animated {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .form-check-input-animated:checked {
+            transform: scale(1.1);
+            box-shadow: 0 0 5px rgba(0, 102, 204, 0.5);
+        }
+        
+        /* 旋转动画 */
+        .rotate-animation {
+            animation: rotate 1s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 数据表格样式调整 */
+        .dataTables_wrapper .dataTables_filter {
+            margin-bottom: 0;
+            margin-right: 1rem;
+        }
+    </style>
+</body>
+</html> 

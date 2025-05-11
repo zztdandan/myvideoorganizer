@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频文件组织系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 侧边栏 -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar">
+                <div class="position-sticky pt-3">
+                    <div class="sidebar-header mb-4">
+                        <h3 class="text-light text-center">视频文件组织系统</h3>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{{ url_for('index') }}">
+                                <i class="bi bi-house-door me-2"></i>首页
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('config_page') }}">
+                                <i class="bi bi-gear me-2"></i>系统配置
+                            </a>
+                        </li>
+                        <li class="nav-item sidebar-heading">
+                            <span>功能列表</span>
+                        </li>
+                        {% for func_id, func_name in FUNCTION_NAMES.items() %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('function_page', func_id=func_id) }}">
+                                <i class="bi bi-check2-square me-2"></i>{{ func_name }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- 主内容区 -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="page-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4">
+                    <h1 class="h2">欢迎使用视频文件组织系统</h1>
+                </div>
+                
+                <div class="alert alert-primary mb-4" role="alert">
+                    <div class="d-flex">
+                        <div class="flex-shrink-0">
+                            <i class="bi bi-info-circle-fill fs-3 me-3"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h4 class="alert-heading fw-bold mb-2">开始使用</h4>
+                            <p>要开始使用本系统，请先完成以下步骤：</p>
+                            <ol>
+                                <li>进入<a href="{{ url_for('config_page') }}" class="alert-link">系统配置</a>页面，设置您的视频根目录路径</li>
+                                <li>返回首页，从下方功能卡片中选择一个功能</li>
+                                <li>在功能页面中，您可以查看、筛选和选择要执行的操作</li>
+                            </ol>
+                            <hr>
+                            <p class="mb-0">如果您是首次使用，建议先配置好系统后再使用各功能。</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row g-4 mb-5">
+                    {% set icons = {
+                        'func1': 'folder-x',
+                        'func2': 'files',
+                        'func3': 'pencil-square',
+                        'func4': 'person-badge',
+                        'func5': 'film'
+                    } %}
+                    
+                    {% for func_id, func_name in FUNCTION_NAMES.items() %}
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="feature-card">
+                            <div class="card-body d-flex flex-column">
+                                <div class="feature-icon mb-3">
+                                    <span class="icon-circle bg-primary bg-opacity-10 text-primary">
+                                        <i class="bi bi-{{ icons[func_id] }} fs-3"></i>
+                                    </span>
+                                </div>
+                                <h5 class="card-title">{{ func_name }}</h5>
+                                <p class="card-text flex-grow-1">{{ get_function_description(func_id) }}</p>
+                                <a href="{{ url_for('function_page', func_id=func_id) }}" class="btn btn-primary w-100">
+                                    <i class="bi bi-arrow-right me-2"></i>进入功能
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="content-container">
+                    <h3 class="mb-4">系统状态</h3>
+                    <div class="row g-4">
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="icon-circle bg-success bg-opacity-10 text-success">
+                                            <i class="bi bi-hdd-stack fs-4"></i>
+                                        </div>
+                                        <h6 class="card-subtitle ms-3 text-muted">根目录</h6>
+                                    </div>
+                                    <h5 class="card-title mb-0" id="rootDirStatus">
+                                        <span class="placeholder-glow">
+                                            <span class="placeholder col-9"></span>
+                                        </span>
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="icon-circle bg-info bg-opacity-10 text-info">
+                                            <i class="bi bi-camera-video fs-4"></i>
+                                        </div>
+                                        <h6 class="card-subtitle ms-3 text-muted">视频数量</h6>
+                                    </div>
+                                    <h5 class="card-title mb-0" id="videoCount">
+                                        <span class="placeholder-glow">
+                                            <span class="placeholder col-5"></span>
+                                        </span>
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="icon-circle bg-warning bg-opacity-10 text-warning">
+                                            <i class="bi bi-folder fs-4"></i>
+                                        </div>
+                                        <h6 class="card-subtitle ms-3 text-muted">文件夹数量</h6>
+                                    </div>
+                                    <h5 class="card-title mb-0" id="folderCount">
+                                        <span class="placeholder-glow">
+                                            <span class="placeholder col-5"></span>
+                                        </span>
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="icon-circle bg-primary bg-opacity-10 text-primary">
+                                            <i class="bi bi-check2-all fs-4"></i>
+                                        </div>
+                                        <h6 class="card-subtitle ms-3 text-muted">系统状态</h6>
+                                    </div>
+                                    <h5 class="card-title mb-0" id="systemStatus">
+                                        <span class="placeholder-glow">
+                                            <span class="placeholder col-7"></span>
+                                        </span>
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- 移动端导航切换按钮 -->
+    <button class="mobile-nav-toggle" id="sidebarToggle">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            // 移动端侧边栏切换
+            $('#sidebarToggle').on('click', function() {
+                $('#sidebar').toggleClass('show');
+            });
+            
+            // 获取系统状态
+            axios.get('/api/config')
+                .then(function(response) {
+                    var config = response.data;
+                    if (config.ROOT_DIR && config.ROOT_DIR.value) {
+                        $('#rootDirStatus').text(config.ROOT_DIR.value);
+                    } else {
+                        $('#rootDirStatus').html('<span class="text-danger">未设置</span>');
+                    }
+                    
+                    // 系统状态默认设为 "正常"
+                    $('#systemStatus').html('<span class="text-success">正常运行中</span>');
+                    
+                    // 视频数量和文件夹数量暂时设为"加载中"，可以稍后通过API获取
+                    $('#videoCount').text('加载中...');
+                    $('#folderCount').text('加载中...');
+                    
+                    // 模拟获取数据
+                    setTimeout(function() {
+                        $('#videoCount').text('--');
+                        $('#folderCount').text('--');
+                    }, 1500);
+                })
+                .catch(function(error) {
+                    console.error('Failed to load config:', error);
+                    $('#rootDirStatus').html('<span class="text-danger">加载失败</span>');
+                    $('#systemStatus').html('<span class="text-danger">配置加载失败</span>');
+                    $('#videoCount').text('--');
+                    $('#folderCount').text('--');
+                });
+        });
+    </script>
+    <style>
+        .icon-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</body>
+</html> 

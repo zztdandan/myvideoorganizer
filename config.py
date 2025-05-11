@@ -16,7 +16,7 @@ class BaseConfig:
         '.mp4', '.mkv', '.avi', '.wmv', '.mov', 
         '.flv', '.rmvb', '.rm', '.3gp', '.m4v','.m2ts','.ts','.mpg'
     }
-    MIN_VIDEO_SIZE_MB: int = 500
+    MIN_VIDEO_SIZE_MB: int = 300
     
     # 图片文件相关配置
     IMAGE_EXTENSIONS: Set[str] = {
@@ -71,7 +71,7 @@ class BaseConfig:
 class DevConfig(BaseConfig):
     """开发环境配置"""
     # 可以覆盖基础配置的任何属性
-    ROOT_DIR="Z:/JAV"
+    ROOT_DIR="Z:/JELLYFIN/JAV/atmp"
     DEFAULT_RENAME_PATTERN='number'
 class Config:
     """配置加载器"""

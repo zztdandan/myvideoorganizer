@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统配置 - 视频文件组织系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 侧边栏 -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
+                <div class="position-sticky pt-3">
+                    <div class="sidebar-header mb-4">
+                        <h3 class="text-light text-center">视频文件组织系统</h3>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('index') }}">
+                                <i class="bi bi-house-door me-2"></i>首页
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{{ url_for('config_page') }}">
+                                <i class="bi bi-gear me-2"></i>系统配置
+                            </a>
+                        </li>
+                        <li class="nav-item sidebar-heading">
+                            <span>功能列表</span>
+                        </li>
+                        {% for func_id, func_name in FUNCTION_NAMES.items() %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('function_page', func_id=func_id) }}">
+                                <i class="bi bi-check2-square me-2"></i>{{ func_name }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- 主内容区 -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">系统配置</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button type="button" class="btn btn-primary" onclick="document.getElementById('config-form').submit()">
+                            保存配置
+                        </button>
+                    </div>
+                </div>
+                
+                {% if save_success %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    <strong>保存成功！</strong> 配置已成功更新。
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+                
+                <form id="config-form" method="post" action="{{ url_for('config_page') }}">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="accordion" id="configAccordion">
+                                <!-- 目录配置 -->
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingDirectories">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDirectories" aria-expanded="true" aria-controls="collapseDirectories">
+                                            目录配置
+                                        </button>
+                                    </h2>
+                                    <div id="collapseDirectories" class="accordion-collapse collapse show" aria-labelledby="headingDirectories" data-bs-parent="#configAccordion">
+                                        <div class="accordion-body">
+                                            <div class="alert alert-info">
+                                                <i class="bi bi-info-circle-fill me-2"></i>
+                                                <strong>重要提示：</strong> 视频根目录路径必须是一个有效且可访问的路径，否则系统将无法正常工作。
+                                            </div>
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <label for="ROOT_DIR" class="form-label">视频根目录路径</label>
+                                                    <input type="text" class="form-control" id="ROOT_DIR" name="ROOT_DIR" 
+                                                           value="{{ config_items.ROOT_DIR.value }}">
+                                                    <div class="form-text">{{ config_items.ROOT_DIR.description }} (例如：D:/Videos 或 /home/user/videos)</div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="DELETE_DIR_NAME" class="form-label">删除文件存放目录名</label>
+                                                    <input type="text" class="form-control" id="DELETE_DIR_NAME" name="DELETE_DIR_NAME" 
+                                                           value="{{ config_items.DELETE_DIR_NAME.value }}">
+                                                    <div class="form-text">{{ config_items.DELETE_DIR_NAME.description }}</div>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <label for="BIG_VIDEO_DIR" class="form-label">超宽视频存放目录</label>
+                                                    <input type="text" class="form-control" id="BIG_VIDEO_DIR" name="BIG_VIDEO_DIR" 
+                                                           value="{{ config_items.BIG_VIDEO_DIR.value }}">
+                                                    <div class="form-text">{{ config_items.BIG_VIDEO_DIR.description }}</div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="JSON_OUTPUT_DIR" class="form-label">JSON操作文件输出目录</label>
+                                                    <input type="text" class="form-control" id="JSON_OUTPUT_DIR" name="JSON_OUTPUT_DIR" 
+                                                           value="{{ config_items.JSON_OUTPUT_DIR.value }}">
+                                                    <div class="form-text">{{ config_items.JSON_OUTPUT_DIR.description }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 视频文件配置 -->
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingVideo">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseVideo" aria-expanded="false" aria-controls="collapseVideo">
+                                            视频文件配置
+                                        </button>
+                                    </h2>
+                                    <div id="collapseVideo" class="accordion-collapse collapse" aria-labelledby="headingVideo" data-bs-parent="#configAccordion">
+                                        <div class="accordion-body">
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <label for="VIDEO_EXTENSIONS" class="form-label">视频文件扩展名列表</label>
+                                                    <input type="text" class="form-control" id="VIDEO_EXTENSIONS" name="VIDEO_EXTENSIONS" 
+                                                           value="{{ config_items.VIDEO_EXTENSIONS.value|join(', ') }}">
+                                                    <div class="form-text">以逗号分隔的视频文件扩展名列表（包含点号）</div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="MIN_VIDEO_SIZE_MB" class="form-label">最小视频文件大小(MB)</label>
+                                                    <input type="number" class="form-control" id="MIN_VIDEO_SIZE_MB" name="MIN_VIDEO_SIZE_MB" 
+                                                           value="{{ config_items.MIN_VIDEO_SIZE_MB.value }}">
+                                                    <div class="form-text">小于此大小的视频文件将被忽略</div>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <label for="BIG_VIDEO_WIDTH_THRESHOLD" class="form-label">超宽视频宽度阈值</label>
+                                                    <input type="number" class="form-control" id="BIG_VIDEO_WIDTH_THRESHOLD" name="BIG_VIDEO_WIDTH_THRESHOLD" 
+                                                           value="{{ config_items.BIG_VIDEO_WIDTH_THRESHOLD.value }}">
+                                                    <div class="form-text">宽度超过此值的视频将被判定为超宽视频</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 图片文件配置 -->
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingImage">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseImage" aria-expanded="false" aria-controls="collapseImage">
+                                            图片文件配置
+                                        </button>
+                                    </h2>
+                                    <div id="collapseImage" class="accordion-collapse collapse" aria-labelledby="headingImage" data-bs-parent="#configAccordion">
+                                        <div class="accordion-body">
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <label for="IMAGE_EXTENSIONS" class="form-label">图片文件扩展名列表</label>
+                                                    <input type="text" class="form-control" id="IMAGE_EXTENSIONS" name="IMAGE_EXTENSIONS" 
+                                                           value="{{ config_items.IMAGE_EXTENSIONS.value|join(', ') }}">
+                                                    <div class="form-text">以逗号分隔的图片文件扩展名列表（包含点号）</div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="VALID_IMAGE_KEYWORDS" class="form-label">有效图片关键词列表</label>
+                                                    <input type="text" class="form-control" id="VALID_IMAGE_KEYWORDS" name="VALID_IMAGE_KEYWORDS" 
+                                                           value="{{ config_items.VALID_IMAGE_KEYWORDS.value|join(', ') }}">
+                                                    <div class="form-text">包含这些关键词的图片文件会被保留</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 重命名配置 -->
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingRename">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRename" aria-expanded="false" aria-controls="collapseRename">
+                                            重命名配置
+                                        </button>
+                                    </h2>
+                                    <div id="collapseRename" class="accordion-collapse collapse" aria-labelledby="headingRename" data-bs-parent="#configAccordion">
+                                        <div class="accordion-body">
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <label for="DEFAULT_RENAME_PATTERN" class="form-label">默认重命名规则</label>
+                                                    <select class="form-select" id="DEFAULT_RENAME_PATTERN" name="DEFAULT_RENAME_PATTERN">
+                                                        <option value="number" {% if config_items.DEFAULT_RENAME_PATTERN.value == 'number' %}selected{% endif %}>数字 (1, 2, 3...)</option>
+                                                        <option value="letter" {% if config_items.DEFAULT_RENAME_PATTERN.value == 'letter' %}selected{% endif %}>字母 (A, B, C...)</option>
+                                                        <option value="number2" {% if config_items.DEFAULT_RENAME_PATTERN.value == 'number2' %}selected{% endif %}>带前导零的数字 (01, 02, 03...)</option>
+                                                    </select>
+                                                    <div class="form-text">{{ config_items.DEFAULT_RENAME_PATTERN.description }}</div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="NFO_MATCH_LENGTH" class="form-label">NFO文件匹配长度</label>
+                                                    <input type="number" class="form-control" id="NFO_MATCH_LENGTH" name="NFO_MATCH_LENGTH" 
+                                                           value="{{ config_items.NFO_MATCH_LENGTH.value }}">
+                                                    <div class="form-text">{{ config_items.NFO_MATCH_LENGTH.description }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 演员分类配置 -->
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingActor">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseActor" aria-expanded="false" aria-controls="collapseActor">
+                                            演员分类配置
+                                        </button>
+                                    </h2>
+                                    <div id="collapseActor" class="accordion-collapse collapse" aria-labelledby="headingActor" data-bs-parent="#configAccordion">
+                                        <div class="accordion-body">
+                                            <div class="row mb-3">
+                                                <div class="col-md-4">
+                                                    <label for="UNKNOWN_ACTOR_CATEGORY" class="form-label">未知演员分类</label>
+                                                    <input type="text" class="form-control" id="UNKNOWN_ACTOR_CATEGORY" name="UNKNOWN_ACTOR_CATEGORY" 
+                                                           value="{{ config_items.UNKNOWN_ACTOR_CATEGORY.value }}">
+                                                    <div class="form-text">{{ config_items.UNKNOWN_ACTOR_CATEGORY.description }}</div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label for="JAPANESE_ACTOR_CATEGORY" class="form-label">日文名演员分类</label>
+                                                    <input type="text" class="form-control" id="JAPANESE_ACTOR_CATEGORY" name="JAPANESE_ACTOR_CATEGORY" 
+                                                           value="{{ config_items.JAPANESE_ACTOR_CATEGORY.value }}">
+                                                    <div class="form-text">{{ config_items.JAPANESE_ACTOR_CATEGORY.description }}</div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label for="TITLE_MAX_LENGTH" class="form-label">标题最大长度</label>
+                                                    <input type="number" class="form-control" id="TITLE_MAX_LENGTH" name="TITLE_MAX_LENGTH" 
+                                                           value="{{ config_items.TITLE_MAX_LENGTH.value }}">
+                                                    <div class="form-text">{{ config_items.TITLE_MAX_LENGTH.description }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 其他配置 -->
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingOther">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOther" aria-expanded="false" aria-controls="collapseOther">
+                                            其他配置
+                                        </button>
+                                    </h2>
+                                    <div id="collapseOther" class="accordion-collapse collapse" aria-labelledby="headingOther" data-bs-parent="#configAccordion">
+                                        <div class="accordion-body">
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <label for="JSON_BATCH_SIZE" class="form-label">JSON文件批次大小</label>
+                                                    <input type="number" class="form-control" id="JSON_BATCH_SIZE" name="JSON_BATCH_SIZE" 
+                                                           value="{{ config_items.JSON_BATCH_SIZE.value }}">
+                                                    <div class="form-text">{{ config_items.JSON_BATCH_SIZE.description }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4 mb-5">
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-primary btn-lg">保存所有配置</button>
+                        </div>
+                    </div>
+                </form>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html> 

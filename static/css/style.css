@@ -1,0 +1,481 @@
+/* 基本样式 - 苹果风格 */
+:root {
+    --apple-bg-color: #f5f5f7;
+    --apple-card-bg: #ffffff;
+    --apple-primary: #0066cc;
+    --apple-secondary: #6e6e73;
+    --apple-success: #34c759;
+    --apple-warning: #ff9500;
+    --apple-danger: #ff3b30;
+    --apple-info: #5ac8fa;
+    --apple-dark: #1d1d1f;
+    --apple-border: rgba(0, 0, 0, 0.1);
+    --apple-shadow: rgba(0, 0, 0, 0.05);
+    --sidebar-width-lg: 250px;
+    --sidebar-width-md: 200px;
+    --apple-radius: 10px;
+    --apple-transition: all 0.3s ease;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    background-color: var(--apple-bg-color);
+    color: var(--apple-dark);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* 苹果风格的圆角卡片 */
+.card {
+    border: none;
+    border-radius: var(--apple-radius);
+    box-shadow: 0 2px 20px var(--apple-shadow);
+    transition: var(--apple-transition);
+    overflow: hidden;
+}
+
+.card-header {
+    background-color: var(--apple-card-bg);
+    border-bottom: 1px solid var(--apple-border);
+    padding: 1rem 1.25rem;
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+/* 侧边栏样式 */
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 0;
+    box-shadow: 0 0 15px var(--apple-shadow);
+    height: 100vh;
+    width: var(--sidebar-width-md);
+    background: rgba(29, 29, 31, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: var(--apple-transition);
+}
+
+.sidebar .nav-link {
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+    padding: 0.75rem 1.5rem;
+    margin: 0.2rem 0.8rem;
+    border-radius: 8px;
+    transition: var(--apple-transition);
+}
+
+.sidebar .nav-link.active {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.sidebar .nav-link:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-header {
+    padding: 1.5rem;
+}
+
+.sidebar-heading {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+    padding: 1.2rem 1.5rem 0.5rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+/* 主内容区样式 */
+main {
+    padding-top: 1.5rem;
+    transition: var(--apple-transition);
+    margin-left: var(--sidebar-width-md);
+}
+
+@media (min-width: 992px) {
+    .sidebar {
+        width: var(--sidebar-width-lg);
+    }
+    
+    main {
+        margin-left: var(--sidebar-width-lg);
+    }
+}
+
+@media (max-width: 767.98px) {
+    .sidebar {
+        position: fixed;
+        width: 100%;
+        height: auto;
+        padding-top: 1rem;
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    
+    main {
+        margin-left: 0;
+    }
+    
+    .mobile-nav-toggle {
+        display: block !important;
+    }
+}
+
+/* 按钮样式 */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    transition: var(--apple-transition);
+}
+
+.btn-primary {
+    background-color: var(--apple-primary);
+    border-color: var(--apple-primary);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background-color: #005bb5;
+    border-color: #005bb5;
+    box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+}
+
+.btn-outline-secondary {
+    color: var(--apple-secondary);
+    border-color: var(--apple-secondary);
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--apple-secondary);
+    border-color: var(--apple-secondary);
+}
+
+/* 表格样式 */
+.table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+}
+
+.table th {
+    font-weight: 600;
+    color: var(--apple-secondary);
+    background-color: rgba(245, 245, 247, 0.6);
+    border-bottom: 1px solid var(--apple-border);
+    padding: 0.75rem 1rem;
+}
+
+.table td {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--apple-border);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(245, 245, 247, 0.3);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 102, 204, 0.05);
+}
+
+/* DataTables自定义样式 */
+.dataTables_wrapper .dataTables_info {
+    color: var(--apple-secondary);
+    font-size: 0.85rem;
+    padding: 1rem;
+}
+
+.dataTables_wrapper .dataTables_paginate {
+    padding: 1rem;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    border-radius: 6px;
+    border: none !important;
+    background: transparent !important;
+    color: var(--apple-secondary) !important;
+    transition: var(--apple-transition);
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current, 
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: var(--apple-primary) !important;
+    color: white !important;
+    border: none !important;
+}
+
+.dataTables_wrapper .dataTables_filter input {
+    border: 1px solid var(--apple-border);
+    border-radius: 8px;
+    padding: 0.375rem 0.75rem;
+    transition: var(--apple-transition);
+}
+
+.dataTables_wrapper .dataTables_filter input:focus {
+    border-color: var(--apple-primary);
+    box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+    outline: none;
+}
+
+/* 表单元素 */
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid var(--apple-border);
+    padding: 0.5rem 0.75rem;
+    transition: var(--apple-transition);
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--apple-primary);
+    box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+}
+
+.form-check-input {
+    border-radius: 6px;
+    border: 1px solid var(--apple-border);
+}
+
+.form-check-input:checked {
+    background-color: var(--apple-primary);
+    border-color: var(--apple-primary);
+}
+
+.form-switch .form-check-input {
+    width: 2.5em;
+    height: 1.25em;
+}
+
+.form-check-input:focus {
+    border-color: var(--apple-primary);
+    box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+}
+
+/* 特性卡片 */
+.feature-card {
+    height: 100%;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border-radius: var(--apple-radius);
+    overflow: hidden;
+    border: none;
+    box-shadow: 0 2px 20px var(--apple-shadow);
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.feature-card .card-title {
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.feature-card .card-body {
+    padding: 1.5rem;
+}
+
+.feature-card .btn {
+    margin-top: 1rem;
+}
+
+/* 头部标题区 */
+.page-header {
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--apple-border);
+}
+
+.page-header h1 {
+    font-weight: 600;
+    color: var(--apple-dark);
+}
+
+/* 加载动画 */
+.loading {
+    width: 2rem;
+    height: 2rem;
+    border: 3px solid rgba(0, 102, 204, 0.3);
+    border-top-color: var(--apple-primary);
+    border-radius: 50%;
+    animation: spinner 0.8s linear infinite;
+}
+
+@keyframes spinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* 提示框样式 */
+.alert {
+    border: none;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    transition: var(--apple-transition);
+    box-shadow: 0 2px 10px var(--apple-shadow);
+}
+
+.alert-success {
+    background-color: rgba(52, 199, 89, 0.15);
+    color: #107c41;
+}
+
+.alert-danger {
+    background-color: rgba(255, 59, 48, 0.15);
+    color: #c41e3a;
+}
+
+.alert-info {
+    background-color: rgba(90, 200, 250, 0.15);
+    color: #0070c9;
+}
+
+.alert-warning {
+    background-color: rgba(255, 149, 0, 0.15);
+    color: #c93400;
+}
+
+/* 模态框样式 */
+.modal-content {
+    border: none;
+    border-radius: var(--apple-radius);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--apple-border);
+    padding: 1.25rem 1.5rem;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--apple-border);
+    padding: 1.25rem 1.5rem;
+}
+
+.modal-title {
+    font-weight: 600;
+}
+
+.btn-close {
+    background-size: 0.8em;
+}
+
+/* 下拉菜单 */
+.dropdown-menu {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem;
+}
+
+.dropdown-item {
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    transition: var(--apple-transition);
+}
+
+.dropdown-item:hover, .dropdown-item:focus {
+    background-color: rgba(0, 102, 204, 0.05);
+    color: var(--apple-primary);
+}
+
+/* 手风琴样式 */
+.accordion-item {
+    border: none;
+    margin-bottom: 0.75rem;
+    border-radius: var(--apple-radius);
+    box-shadow: 0 2px 10px var(--apple-shadow);
+    overflow: hidden;
+}
+
+.accordion-button {
+    font-weight: 500;
+    padding: 1.25rem;
+    background-color: var(--apple-card-bg);
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: rgba(0, 102, 204, 0.05);
+    color: var(--apple-primary);
+    box-shadow: none;
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: var(--apple-border);
+}
+
+/* 移动导航切换按钮 */
+.mobile-nav-toggle {
+    display: none;
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1000;
+    background-color: var(--apple-primary);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    transition: var(--apple-transition);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* 数据表格搜索栏 */
+.dataTables_filter {
+    margin-bottom: 1rem;
+}
+
+/* 全局过渡动画 */
+.fade-transition {
+    transition: opacity 0.3s ease;
+}
+
+.fade-transition.hide {
+    opacity: 0;
+}
+
+/* 页面内容容器 */
+.content-container {
+    padding: 1.5rem;
+    border-radius: var(--apple-radius);
+    background-color: var(--apple-card-bg);
+    box-shadow: 0 2px 20px var(--apple-shadow);
+    margin-bottom: 2rem;
+} 

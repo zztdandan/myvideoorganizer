@@ -29,7 +29,8 @@ FUNCTION_NAMES = {
     'func2': '清理视频文件夹内文件',
     'func3': '视频重命名',
     'func4': '按演员分类视频',
-    'func5': '识别超宽视频'
+    'func5': '识别超宽视频',
+    'func6': '电影文件夹智能整理'
 }
 
 # 功能描述映射
@@ -38,7 +39,8 @@ FUNCTION_DESCRIPTIONS = {
     'func2': '清理视频文件夹内的临时文件和无关文件，保留视频和重要媒体文件',
     'func3': '根据配置的规则重命名视频文件，便于统一管理和查找',
     'func4': '根据演员信息将视频分类到相应目录，自动处理不同命名风格',
-    'func5': '识别超过设定宽度的视频文件，可将其移动到指定的大尺寸目录'
+    'func5': '识别超过设定宽度的视频文件，可将其移动到指定的大尺寸目录',
+    'func6': '使用AI智能分析电影信息，统一整理为规范命名格式（中文名.英文名 (年份)），支持系列电影扁平化'
 }
 
 # 设置全局模板变量
@@ -117,6 +119,8 @@ def get_operations(func_id):
             operations = planner.generate_actor_classify_plan()
         elif func_id == 'func5':
             operations = planner.generate_big_video_plan()
+        elif func_id == 'func6':
+            operations = planner.generate_movie_organize_plan()
         else:
             return jsonify({"error": "未知功能"}), 400
         
@@ -261,7 +265,13 @@ def get_config_description(key):
         'BIG_VIDEO_WIDTH_THRESHOLD': '超宽视频宽度阈值',
         'UNKNOWN_ACTOR_CATEGORY': '未知演员分类',
         'JAPANESE_ACTOR_CATEGORY': '日文名演员分类',
-        'TITLE_MAX_LENGTH': '标题最大长度'
+        'TITLE_MAX_LENGTH': '标题最大长度',
+        'OPENROUTER_API_KEY': 'OpenRouter API密钥',
+        'OPENROUTER_MODEL': 'OpenRouter使用的模型名称',
+        'OPENROUTER_API_URL': 'OpenRouter API端点URL',
+        'MOVIE_DIR': '电影整理功能专用目录（为空则使用ROOT_DIR）',
+        'MOVIE_FORCE_REORGANIZE': '是否强制重新整理已整理的文件夹',
+        'MOVIE_NAME_EXTRACTION_PROMPT': '电影名称提取的AI提示词模板'
     }
     return descriptions.get(key, '未知配置项')
 
@@ -276,4 +286,4 @@ if __name__ == '__main__':
     if not static_dir.exists():
         static_dir.mkdir()
         
-    app.run(debug=True, port=5000) 
+    app.run(debug=True, port=5050) 

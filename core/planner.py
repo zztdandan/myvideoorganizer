@@ -6,7 +6,7 @@ from typing import List, Dict, Any
 from core.logger import logger
 from core.helpers import ensure_dir
 from .planners import (
-    BasePlanner, CleanPlanner, RenamePlanner, ActorPlanner, VideoPlanner
+    BasePlanner, CleanPlanner, RenamePlanner, ActorPlanner, VideoPlanner, MoviePlanner
 )
 
 class OperationPlanner(BasePlanner):
@@ -24,6 +24,7 @@ class OperationPlanner(BasePlanner):
         self.rename_planner = RenamePlanner(config)
         self.actor_planner = ActorPlanner(config)
         self.video_planner = VideoPlanner(config)
+        self.movie_planner = MoviePlanner(config)
         
     def generate_clean_folders_plan(self) -> List[Dict[str, str]]:
         """
@@ -69,3 +70,12 @@ class OperationPlanner(BasePlanner):
             操作计划列表
         """
         return self.video_planner.generate_big_video_plan()
+        
+    def generate_movie_organize_plan(self) -> List[Dict[str, str]]:
+        """
+        生成电影文件夹智能整理的操作计划（功能6）
+        
+        Returns:
+            操作计划列表
+        """
+        return self.movie_planner.generate_movie_organize_plan()

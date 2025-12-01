@@ -114,6 +114,8 @@ class VideoOrganizerCLI:
             operations = self.planner.generate_actor_classify_plan()
         elif function == 'func5':
             operations = self.planner.generate_big_video_plan()
+        elif function == 'func6':
+            operations = self.planner.generate_movie_organize_plan()
         else:
             logger.error(f"Unknown function: {function}")
             return False
@@ -217,7 +219,7 @@ def main():
     parser = argparse.ArgumentParser(description='Video folder organizer')
     
     parser.add_argument('function', nargs='?', 
-                       choices=['func1', 'func2', 'func3', 'func4', 'func5', 'scrape'],
+                       choices=['func1', 'func2', 'func3', 'func4', 'func5', 'func6', 'scrape'],
                        help='Function to execute')
     parser.add_argument('--mode', choices=['preview', 'json'],
                        default='preview', help='Execution mode')

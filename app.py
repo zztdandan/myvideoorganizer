@@ -276,6 +276,8 @@ def get_config_description(key):
     return descriptions.get(key, '未知配置项')
 
 if __name__ == '__main__':
+    import argparse
+    
     # 确保模板目录存在
     templates_dir = Path('templates')
     if not templates_dir.exists():
@@ -285,5 +287,22 @@ if __name__ == '__main__':
     static_dir = Path('static')
     if not static_dir.exists():
         static_dir.mkdir()
-        
-    app.run(debug=True, port=5050) 
+    
+    # 解析命令行参数
+    parser = argparse.ArgumentParser(description='Flask视频组织应用')
+    parser.add_argument('--host', type=str, default='127.0.0.1', help='绑定主机地址 (默认: 127.0.0.1)')
+    parser.add_argument('--port', type=int, default=5050, help='绑定端口 (默认: 5050)')
+    parser.add_argument('--debug', action='store_true', default=True, help='启用调试模式')
+    
+    args = parser.parse_args()
+    
+    # 启动Flask应用
+    try:
+        app.run(debug=args.debug, host=args.host, port=args.port, use_reloader=False)
+    except OSError as e:
+        if "以一种访问权限不允许的方式做了一个访问套接字的尝试" in str(e) or "permission denied" in str(e).lower():
+            logger.error(f"端口 {args.port} 被占用或权限不足，请尝试使用其他端口")
+            logger.info(f"提示: 可以运行 'python app.py --port 5051' 使用其他端口")
+        else:
+            logger.error(f"启动失败: {str(e)}")
+        raise 

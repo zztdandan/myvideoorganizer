@@ -73,7 +73,7 @@ function Test-PortAvailable {
 $port = 5050
 $portFound = $false
 $startPort = 5050
-$endPort = 5100
+$endPort = 9999
 
 if (Test-PortAvailable -Port $port) {
     Write-Host "  OK Port $port is available" -ForegroundColor Green

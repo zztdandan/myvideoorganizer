@@ -1,5 +1,5 @@
-*.venv/
-*logs/
-*.vscode/
+.venv/
+logs/
+.vscode/
 __pycache__/
 .pytest_cache/

@@ -1,7 +1,7 @@
 ---
 mode: subagent
 description: 电影信息分析。提取电影中英文名、年份、命名建议。处理 NFO 文件内容解析。通过 @movie-info 调用。
-model: anthropic/claude-sonnet-4-5
+model: openrouter/moonshotai/kimi-k2.5
 color: "#3498DB"
 tools:
   "*": false

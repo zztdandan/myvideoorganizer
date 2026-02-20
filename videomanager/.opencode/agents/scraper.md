@@ -1,7 +1,7 @@
 ---
 mode: subagent
 description: 刮削代理。从指定网站获取视频元数据（演员、标题、封面等）。通过 @scraper 调用。
-model: anthropic/claude-sonnet-4-5
+model: openrouter/moonshotai/kimi-k2.5
 color: "#9B59B6"
 tools:
   "*": false

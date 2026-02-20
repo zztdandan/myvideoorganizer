@@ -45,7 +45,7 @@ uv run python .opencode/skills/movie-organizer/scripts/plan_movie_organize.py \
   --root "/path/to/movies" \
   --ai-analysis '{"chinese_name":"霍比特人","english_name":"The.Hobbit.An.Unexpected.Journey","year":2012,"confidence":0.95}' \
   --force-reorganize false \
-  --output ".opencode/skills/movie-organizer/plans/"
+  --output "plans/"
 ```
 
 ## helpers.py

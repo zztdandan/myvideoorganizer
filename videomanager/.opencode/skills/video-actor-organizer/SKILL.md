@@ -33,11 +33,11 @@ uv run python .opencode/skills/video-actor-organizer/scripts/plan_actor_classify
   --unknown-category "99" \
   --japanese-category "0" \
   --title-max-length 10 \
-  --output ".opencode/skills/video-actor-organizer/plans/"
+  --output "plans/"
 
 # 仅执行
 uv run python .opencode/skills/video-actor-organizer/scripts/execute_plan.py \
-  --plan ".opencode/skills/video-actor-organizer/plans/actor_20260220_150000.json"
+  --plan "plans/actor_20260220_150000.json"
 ```
 
 ## classifier.py

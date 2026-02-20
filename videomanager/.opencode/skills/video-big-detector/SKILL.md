@@ -23,7 +23,7 @@ uv run python .opencode/skills/video-big-detector/scripts/plan_big_video.py \
   --root "/path/to/videos" \
   --width-threshold 2000 \
   --big-dir "BIG" \
-  --output ".opencode/skills/video-big-detector/plans/"
+  --output "plans/"
 ```
 
 ## 依赖

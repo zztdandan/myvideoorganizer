@@ -31,11 +31,11 @@ description: 视频文件重命名。为含多个视频的文件夹按公共前�
 uv run python .opencode/skills/video-renamer/scripts/plan_rename.py \
   --root "/path/to/videos" \
   --pattern "number2" \
-  --output ".opencode/skills/video-renamer/plans/"
+  --output "plans/"
 
 # 仅执行
 uv run python .opencode/skills/video-renamer/scripts/execute_plan.py \
-  --plan ".opencode/skills/video-renamer/plans/rename_20260220_150000.json"
+  --plan "plans/rename_20260220_150000.json"
 ```
 
 ## JSON 格式

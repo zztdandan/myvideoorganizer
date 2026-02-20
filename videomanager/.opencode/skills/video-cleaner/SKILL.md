@@ -49,7 +49,7 @@ uv run python .opencode/skills/video-cleaner/scripts/plan_clean_folders.py \
   --extensions ".mp4,.mkv,.avi,.wmv,.mov,.flv,.rmvb,.rm,.3gp,.m4v,.m2ts,.ts,.mpg" \
   --min-size 300 \
   --delete-dir ".delete" \
-  --output ".opencode/skills/video-cleaner/plans/"
+  --output "plans/"
 
 # func2：清理无用文件
 uv run python .opencode/skills/video-cleaner/scripts/plan_clean_files.py \
@@ -59,11 +59,11 @@ uv run python .opencode/skills/video-cleaner/scripts/plan_clean_files.py \
   --valid-keywords "poster,cover,fanart,banner,thumb,logo" \
   --nfo-match-length 5 \
   --delete-dir ".delete" \
-  --output ".opencode/skills/video-cleaner/plans/"
+  --output "plans/"
 ```
 
 **输出**：
-- 文件路径：`.opencode/skills/video-cleaner/plans/clean_folders_20260220_150000.json`
+- 文件路径：`plans/clean_folders_20260220_150000.json`
 - 格式：见下方 JSON 规范
 
 ### 模式 2：仅执行
@@ -74,7 +74,7 @@ uv run python .opencode/skills/video-cleaner/scripts/plan_clean_files.py \
 
 ```bash
 uv run python .opencode/skills/video-cleaner/scripts/execute_plan.py \
-  --plan ".opencode/skills/video-cleaner/plans/clean_folders_20260220_150000.json"
+  --plan "plans/clean_folders_20260220_150000.json"
 ```
 
 ### 模式 3：联动执行
@@ -123,7 +123,7 @@ Agent 从 `config.toml` 读取配置，理解后作为命令行参数传入：
 
 ## 日志
 
-脚本运行日志输出到 `.opencode/skills/video-cleaner/logs/` 目录。
+脚本运行日志输出到 `logs/` 目录。
 
 文件命名：`{func}_{timestamp}.log`
 

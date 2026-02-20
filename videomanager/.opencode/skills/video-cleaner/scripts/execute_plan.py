@@ -105,8 +105,7 @@ def main():
         results.append(result)
         print(result["message"])
     
-    # 记录日志
-    log_dir = plan_file.parent.parent / "logs"
+    log_dir = Path("logs")
     log_dir.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     log_file = log_dir / f"execute_{timestamp}.log"

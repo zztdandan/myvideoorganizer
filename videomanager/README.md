@@ -58,12 +58,12 @@ opencode
 ```
 videomanager/
 ├── .opencode/
-│   ├── agent/
+│   ├── agents/                   # Agent 定义（复数形式，符合官方规范）
 │   │   ├── videomanager.md       # 主 agent
 │   │   ├── movie-info.md         # 子 agent：电影信息分析
 │   │   ├── scraper.md            # 子 agent：刮削（预留）
 │   │   └── 115oper.md            # 子 agent：115操作（预留）
-│   ├── command/
+│   ├── commands/                 # 命令定义（复数形式，符合官方规范）
 │   │   ├── clean.md              # /clean 命令
 │   │   ├── organize.md           # /organize 命令
 │   │   └── status.md             # /status 命令

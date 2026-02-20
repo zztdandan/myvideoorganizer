@@ -1,0 +1,26 @@
+[
+  {
+    "func": "rename",
+    "action": "RENAME",
+    "source": "/tmp/test_rename/MultiPartMovie/The.Movie.Part-A.mp4",
+    "destination": "/tmp/test_rename/MultiPartMovie/The.Movie.Part-cd01.mp4",
+    "size_mb": 0.0,
+    "created_at": "2026-02-20T15:02:28.180252"
+  },
+  {
+    "func": "rename",
+    "action": "RENAME",
+    "source": "/tmp/test_rename/MultiPartMovie/The.Movie.Part-B.mp4",
+    "destination": "/tmp/test_rename/MultiPartMovie/The.Movie.Part-cd02.mp4",
+    "size_mb": 0.0,
+    "created_at": "2026-02-20T15:02:28.180306"
+  },
+  {
+    "func": "rename",
+    "action": "RENAME",
+    "source": "/tmp/test_rename/MultiPartMovie/The.Movie.Part-C.mp4",
+    "destination": "/tmp/test_rename/MultiPartMovie/The.Movie.Part-cd03.mp4",
+    "size_mb": 0.0,
+    "created_at": "2026-02-20T15:02:28.180332"
+  }
+]

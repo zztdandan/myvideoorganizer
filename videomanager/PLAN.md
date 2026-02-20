@@ -116,7 +116,7 @@ videomanager/                           # 项目根目录（用户在此启动 o
 ```markdown
 ---
 mode: primary
-description: 视频整理管理器。负责文件整理、清理、重命名、演员分类、超宽检测、电影归档等任务。当用户提到视频整理、清理、重命名、分类、电影整理等需求时触发。
+description: 视频整理管理器。负责文件整理、清理、重命名、演员分类、超宽检测、电影归档等任务，以及之后的其他视频相关整理任务。当用户提到视频整理、清理、重命名、分类、电影整理等需求时使用。
 model: anthropic/claude-sonnet-4-5
 color: "#FF6B35"
 tools:

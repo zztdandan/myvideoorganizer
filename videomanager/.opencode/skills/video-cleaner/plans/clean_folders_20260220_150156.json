@@ -1,0 +1,18 @@
+[
+  {
+    "func": "clean_folders",
+    "action": "MOVE",
+    "source": "/tmp/test_videos/SmallVideos",
+    "destination": "/tmp/test_videos/.delete/SmallVideos",
+    "size_mb": 0.0,
+    "created_at": "2026-02-20T15:01:56.107585"
+  },
+  {
+    "func": "clean_folders",
+    "action": "MOVE",
+    "source": "/tmp/test_videos/EmptyFolder",
+    "destination": "/tmp/test_videos/.delete/EmptyFolder",
+    "size_mb": 0.0,
+    "created_at": "2026-02-20T15:01:56.107939"
+  }
+]

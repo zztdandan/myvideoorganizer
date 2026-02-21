@@ -44,7 +44,7 @@ description: 视频目录清理。扫描并清理非视频文件夹（func1）�
 
 ```bash
 # func1：清理非视频文件夹
-uv run python .opencode/skills/video-cleaner/scripts/plan_clean_folders.py \
+.venv/bin/python .opencode/skills/video-cleaner/scripts/plan_clean_folders.py \
   --root "/path/to/videos" \
   --extensions ".mp4,.mkv,.avi,.wmv,.mov,.flv,.rmvb,.rm,.3gp,.m4v,.m2ts,.ts,.mpg" \
   --min-size 300 \
@@ -52,7 +52,7 @@ uv run python .opencode/skills/video-cleaner/scripts/plan_clean_folders.py \
   --output "plans/"
 
 # func2：清理无用文件
-uv run python .opencode/skills/video-cleaner/scripts/plan_clean_files.py \
+.venv/bin/python .opencode/skills/video-cleaner/scripts/plan_clean_files.py \
   --root "/path/to/videos" \
   --video-extensions ".mp4,.mkv,.avi" \
   --image-extensions ".jpg,.png,.gif,.bmp,.webp" \
@@ -73,7 +73,7 @@ uv run python .opencode/skills/video-cleaner/scripts/plan_clean_files.py \
 **调用方式**：
 
 ```bash
-uv run python .opencode/skills/video-cleaner/scripts/execute_plan.py \
+.venv/bin/python .opencode/skills/video-cleaner/scripts/execute_plan.py \
   --plan "plans/clean_folders_20260220_150000.json"
 ```
 
@@ -154,4 +154,3 @@ Agent 从 `config.toml` 读取配置，理解后作为命令行参数传入：
 - 脚本**自包含所有所需逻辑**，不依赖外部 helper 模块。
 - 文件遍历、视频判断、图片/NFO 判断、文件大小计算等全部在脚本内实现。
 - 使用 Python 标准库 + `pathlib`。
-- 若中途有plan过程生成json，不要阅读json文件内容，因为文件内容会很大。直接汇报生成在哪个地方即可，后续脚本也无需得知具体json内容，仅需按地址执行正确json

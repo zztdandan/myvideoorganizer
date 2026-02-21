@@ -28,13 +28,13 @@ description: 视频文件重命名。为含多个视频的文件夹按公共前�
 
 ```bash
 # 仅计划
-uv run python .opencode/skills/video-renamer/scripts/plan_rename.py \
+.venv/bin/python .opencode/skills/video-renamer/scripts/plan_rename.py \
   --root "/path/to/videos" \
   --pattern "number2" \
   --output "plans/"
 
 # 仅执行
-uv run python .opencode/skills/video-renamer/scripts/execute_plan.py \
+.venv/bin/python .opencode/skills/video-renamer/scripts/execute_plan.py \
   --plan "plans/rename_20260220_150000.json"
 ```
 

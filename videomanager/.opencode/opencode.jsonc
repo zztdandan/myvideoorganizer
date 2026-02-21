@@ -1,7 +1,13 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "tools": {
-    "*": false
+    "*": false,
+    "bash": true,
+    "read": true,
+    "write": true,
+    "glob": true,
+    "grep": true,
+    "skill": true
   },
   "mcp": {},
   "plugin": []

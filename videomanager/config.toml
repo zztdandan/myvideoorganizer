@@ -22,7 +22,7 @@ width_threshold = 2000
 [actor]
 unknown_category = "99"
 japanese_category = "0"
-title_max_length = 10
+title_max_length = 20
 
 [movie]
 force_reorganize = false

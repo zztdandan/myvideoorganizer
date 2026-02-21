@@ -41,7 +41,7 @@ description: 电影整理归档。AI 分析电影信息，重命名文件夹和�
 # }
 
 # 然后调用脚本
-uv run python .opencode/skills/movie-organizer/scripts/plan_movie_organize.py \
+.venv/bin/python .opencode/skills/movie-organizer/scripts/plan_movie_organize.py \
   --root "/path/to/movies" \
   --ai-analysis '{"chinese_name":"霍比特人","english_name":"The.Hobbit.An.Unexpected.Journey","year":2012,"confidence":0.95}' \
   --force-reorganize false \

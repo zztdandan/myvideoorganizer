@@ -17,8 +17,7 @@
 | 清理非视频文件夹 | 移动不含有效视频的文件夹到 `.delete` | video-cleaner |
 | 清理无用文件 | 清理视频文件夹中的非必要文件 | video-cleaner |
 | 视频重命名 | 为含多个视频的文件夹添加 cd 序号 | video-renamer |
-| 演员分类 | 按演员名拼音首字母分类整理 | video-actor-organizer |
-| 超宽视频检测 | 检测并移动超宽视频到 BIG 目录 | video-big-detector |
+| 演员分类 | 按演员名拼音首字母分类整理（同时自动识别VR视频） | video-actor-organizer |
 | 电影整理 | AI 分析并重命名电影文件夹 | movie-organizer |
 
 ## 快速开始
@@ -71,8 +70,7 @@ videomanager/
 │   │   ├── config-skill/         # 配置管理
 │   │   ├── video-cleaner/        # 视频清理
 │   │   ├── video-renamer/        # 视频重命名
-│   │   ├── video-actor-organizer/# 演员分类
-│   │   ├── video-big-detector/   # 超宽视频检测
+│   │   ├── video-actor-organizer/# 演员分类（含VR视频自动识别）
 │   │   └── movie-organizer/      # 电影整理
 │   └── opencode.jsonc            # 项目配置
 ├── config.toml                   # 业务配置

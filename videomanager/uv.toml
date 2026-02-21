@@ -1,0 +1,11 @@
+# UV 项目级配置 - 国内镜像源
+# 由 uv-setup skill 自动生成
+
+# Python 版本偏好
+python-preference = "only-system"
+
+# 默认索引 - 清华镜像
+[[index]]
+name = "tsinghua"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true

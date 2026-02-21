@@ -9,6 +9,12 @@ __pycache__/
 dist/
 build/
 
+# 虚拟环境
+.venv/
+venv/
+env/
+ENV/
+
 # Skill 生成的计划文件和日志
 plans/
 logs/
@@ -18,9 +24,15 @@ logs/
 .vscode/
 .idea/
 *.swp
-*.swo
+*.swo/
 *~
 
 # OS
 .DS_Store
 Thumbs.db
+
+# uv
+uv.lock
+
+# 备份文件
+*.backup

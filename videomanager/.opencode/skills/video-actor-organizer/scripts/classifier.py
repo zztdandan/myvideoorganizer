@@ -29,15 +29,18 @@ class ActorClassifier:
         return mappings
 
     def has_kana(self, text: str) -> bool:
-        """检查文本是否包含日文假名（平假名或片假名）"""
-        # 平假名范围: \u3040-\u309F
-        # 片假名范围: \u30A0-\u30FF
+        """
+        检查文本是否包含平假名或片假名。
+        仅平假名/片假名视为“需要映射”；仅含汉字（含日文汉字）不视为需要映射，可做拼音转化。
+        平假名: U+3040-U+309F，片假名: U+30A0-U+30FF。
+        """
         kana_pattern = re.compile(r"[\u3040-\u309F\u30A0-\u30FF]")
         return bool(kana_pattern.search(text))
 
     def get_mapping(self, name: str) -> tuple[str, str | None]:
         """
-        获取演员名的映射信息
+        获取演员名的映射信息。
+        仅当名字中含有平假名或片假名时才查映射；纯汉字（含日文汉字）直接返回原名不查。
         返回: (display_name, chinese_name)
         - display_name: 用于目录显示的名字 (中文名_原名 或 原名)
         - chinese_name: 中文映射名（如果有），否则 None
@@ -53,7 +56,11 @@ class ActorClassifier:
             return name, None
 
     def needs_mapping(self, name: str) -> bool:
-        """检查名字是否需要映射（包含假名且无映射）"""
+        """
+        检查名字是否需要映射。
+        仅当名字中含有平假名或片假名且尚无映射时才需要映射；
+        仅含汉字（含日文汉字）不需要映射，可做拼音转化。
+        """
         if not self.has_kana(name):
             return False
         return name not in self.mappings

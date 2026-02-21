@@ -54,9 +54,9 @@ description: 视频目录清理。扫描并清理非视频文件夹（func1）�
 # func2：清理无用文件
 .venv/bin/python .opencode/skills/video-cleaner/scripts/plan_clean_files.py \
   --root "/path/to/videos" \
-  --video-extensions ".mp4,.mkv,.avi" \
-  --image-extensions ".jpg,.png,.gif,.bmp,.webp" \
-  --valid-keywords "poster,cover,fanart,banner,thumb,logo" \
+  --video-extensions ".mp4,.mkv,.avi,.wmv,.mov,.flv,.rmvb,.rm,.3gp,.m4v,.m2ts,.ts,.mpg" \
+  --image-extensions ".jpg,.jpeg,.png,.gif,.bmp,.webp,.tiff" \
+  --valid-keywords "poster,movie,folder,cover,fanart,banner,clearart,thumb,landscape,logo,clearlogo,disc,discart,backdrop,keyart" \
   --nfo-match-length 5 \
   --delete-dir ".delete" \
   --output "plans/"
@@ -154,3 +154,4 @@ Agent 从 `config.toml` 读取配置，理解后作为命令行参数传入：
 - 脚本**自包含所有所需逻辑**，不依赖外部 helper 模块。
 - 文件遍历、视频判断、图片/NFO 判断、文件大小计算等全部在脚本内实现。
 - 使用 Python 标准库 + `pathlib`。
+- 生成的计划路径，不能放在skill的目录中，要放在agent运行的目录中，保持skill目录清洁

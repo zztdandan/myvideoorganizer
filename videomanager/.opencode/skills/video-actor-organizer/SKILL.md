@@ -84,7 +84,7 @@ FC2/PPV 视频如果没有演员信息，自动添加 `FC2-PPV`, `FC2`, `PPV` �
   --root "/path/to/videos" \
   --unknown-category "99" \
   --japanese-category "0" \
-  --title-max-length 10 \
+  --title-max-length 20 \
   --width-threshold 2000 \
   --big-dir "BIG" \
   --output "plans/"
@@ -155,3 +155,8 @@ FC2/PPV 视频如果没有演员信息，自动添加 `FC2-PPV`, `FC2`, `PPV` �
    - 建议用户：可以编辑记忆文件修改映射名
 4. 如果没有未映射演员：
    - 正常展示计划并询问是否执行
+
+
+## 其他注意
+
+- 生成的计划路径，不能放在skill的目录中，要放在agent运行的目录中，保持skill目录清洁

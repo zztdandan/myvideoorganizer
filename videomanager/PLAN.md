@@ -17,9 +17,9 @@
 - ❌ 类属性配置（config.py）
 
 ### 1.3 新增内容
-- ✅ Agent 定义（.opencode/agent/*.md）
+- ✅ Agent 定义（.opencode/agents/*.md）
 - ✅ Skill 定义（.opencode/skills/*/SKILL.md）
-- ✅ Command 快捷指令（.opencode/command/*.md）
+- ✅ Command 快捷指令（.opencode/commands/*.md）
 - ✅ TOML 配置（config.toml）
 - ✅ 短期记忆文件（memory/*.md）
 - ✅ 独立 Python 脚本（每个 skill 自包含所需逻辑）
@@ -31,12 +31,12 @@
 ```
 videomanager/                           # 项目根目录（用户在此启动 opencode）
 ├── .opencode/                          # Opencode 配置目录
-│   ├── agent/                          # Agent 定义（注意是单数）
+│   ├── agents/                         # Agent 定义（复数形式，符合 Opencode 规范）
 │   │   ├── videomanager.md            # 主 agent
 │   │   ├── movie-info.md              # 子 agent：电影信息分析
 │   │   ├── scraper.md                 # 子 agent：刮削（预留）
 │   │   └── 115oper.md                 # 子 agent：115操作（预留）
-│   ├── command/                        # 快捷命令（注意是单数）
+│   ├── commands/                       # 快捷命令（复数形式，符合 Opencode 规范）
 │   │   ├── clean.md                   # /clean 命令
 │   │   ├── organize.md                # /organize 命令
 │   │   └── status.md                  # /status 命令
@@ -70,14 +70,6 @@ videomanager/                           # 项目根目录（用户在此启动 o
 │   │   │   │   └── classifier.py
 │   │   │   ├── logs/
 │   │   │   └── plans/
-│   │   ├── video-big-detector/
-│   │   │   ├── SKILL.md
-│   │   │   ├── scripts/
-│   │   │   │   ├── plan_big_video.py
-│   │   │   │   ├── execute_plan.py
-│   │   │   │   └── classifier.py
-│   │   │   ├── logs/
-│   │   │   └── plans/
 │   │   └── movie-organizer/
 │   │       ├── SKILL.md
 │   │       ├── scripts/
@@ -101,7 +93,7 @@ videomanager/                           # 项目根目录（用户在此启动 o
 
 **关键说明**：
 - `.opencode/` 位于 `videomanager/` 内部（不是外层 myvideoorganizer/）
-- agent、command 目录名为单数（Opencode 规范）
+- agents、commands 目录名为复数形式（符合 Opencode 规范）
 - 所有 Python 脚本自包含于各 skill 的 `scripts/` 目录
 
 ---
@@ -110,20 +102,21 @@ videomanager/                           # 项目根目录（用户在此启动 o
 
 ### 3.1 主 Agent：`videomanager`
 
-**文件路径**：`.opencode/agent/videomanager.md`
+**文件路径**：`.opencode/agents/videomanager.md`
 
 **完整内容**：
 ```markdown
 ---
 mode: primary
-description: 视频整理管理器。负责文件整理、清理、重命名、演员分类、超宽检测、电影归档等任务，以及之后的其他视频相关整理任务。当用户提到视频整理、清理、重命名、分类、电影整理等需求时使用。
-model: anthropic/claude-sonnet-4-5
+description: 视频整理管理器。负责文件整理、清理、重命名、演员分类、电影归档等任务，以及之后的其他视频相关整理任务。当用户提到视频整理、清理、重命名、分类、电影整理等需求时使用。
+model: openrouter/moonshotai/kimi-k2.5
 color: "#FF6B35"
 tools:
   "*": false
   "bash": true
   "read": true
   "write": true
+  "edit": true
   "glob": true
   "grep": true
   "skill": true
@@ -133,18 +126,53 @@ tools:
 
 你是视频整理系统的主 Agent，负责协调所有视频整理任务。
 
-## 启动流程
+## ⚠️ 启动流程（必须按顺序执行）
 
-1. **加载配置**：首次启动时，加载 `config-skill` 读取 `config.toml`。若配置文件不存在，引导用户初始化。
-2. **读取记忆**：检查 `memory/paths.md` 获取上次操作路径，`memory/recent.md` 获取最近操作记录。
-3. **理解意图**：根据用户指令，判断需要执行哪个功能（清理/重命名/分类/检测/整理）。
-4. **加载 Skill**：调用对应的功能 skill，按 skill 指示执行。
+### 步骤 0：UV 环境检查（最高优先级）
+在你执行第一个任务前，你需要提前做本运行的uv环境检查，所有内容都在 skill uv-setup里，按照skill操作，如果最终操作结果是无法就绪uv虚拟环境，那么报出问题，不再执行任何任务
+
+在一个session中，你只需在最开始做一次检查，之后不再执行这个步骤
+
+### 可能步骤：加载配置
+
+**只有在环境检查通过后，才继续：**
+
+1. **加载 config-skill** 读取 `config.toml`
+2. 若配置文件不存在，引导用户初始化
+3. 在一个session中你可能不止一次加载config，因为用户可能会口述改变此文件
+
+### 可能步骤：读取并管理记忆
+
+- 检查 `memory/paths.md` 获取上次操作路径
+- 检查 `memory/recent.md` 获取最近操作记录
+- 你将记得，每次操作后更新记忆文件。记忆文件可携带时间戳，对历史记录适当维持规模
+
+### 步骤：理解意图
+
+根据用户指令，判断使用什么skill或自身功能解决问题。
+请注意，在无特殊说明情况下，默认都使用记忆路径来处理功能
 
 ## 工具使用限制
 
 - **Bash 白名单**：只允许 `ls`, `cat`, `python`, `uv`, `mkdir`, `cp`, `mv`, `find`, `grep`
 - **禁止**：`rm`, `rm -rf`, `chmod`, `chown`, `sudo`, `curl`, `wget` 等破坏性或网络操作
-- **Python 调用**：统一使用 `uv run python <script>` 或激活虚拟环境后调用
+- **Python 调用**：统一使用 `.venv/bin/python <script>`（不再使用 uv run）
+
+## 环境管理命令参考
+
+当需要管理环境时，使用以下命令：
+
+```bash
+# 查看环境状态
+.venv/bin/python .opencode/skills/uv-setup/scripts/status.py
+
+# 配置国内镜像源（如需要）
+.venv/bin/python .opencode/skills/uv-setup/scripts/config_mirror.py tsinghua
+# 支持的镜像：tsinghua, aliyun, tencent
+
+# 重新初始化环境（如出现问题）
+.venv/bin/python .opencode/skills/uv-setup/scripts/setup_venv.py
+```
 
 ## Memory 管理
 
@@ -168,13 +196,15 @@ tools:
 - 配置参数不是硬编码的，而是从 `config.toml` 读取后理解，作为参数传给脚本。
 - 每个 skill 都有独立的 `logs/` 和 `plans/` 目录，不要混淆。
 - 执行前向用户确认计划摘要，除非用户明确说"直接执行"。
+- 有很多skill会带有计划——执行功能，计划plan功能中途会生成json计划文件，不要阅读json文件内容，因为文件内容会很大。直接接受信号生成在哪个地方即可
+- 这些skill的执行功能，也涉及到读取json文件，agent本身并不需要了解计划json文件的具体内容（除非使用者明确要求），直接使用skill的执行功能，该功能只需要plan文件的地址，py脚本会自己去读的
 ```
 
 ---
 
 ### 3.2 子 Agent：`movie-info`
 
-**文件路径**：`.opencode/agent/movie-info.md`
+**文件路径**：`.opencode/agents/movie-info.md`
 
 **完整内容**：
 ```markdown
@@ -237,7 +267,7 @@ tools:
 
 ### 3.3 子 Agent：`scraper`（预留）
 
-**文件路径**：`.opencode/agent/scraper.md`
+**文件路径**：`.opencode/agents/scraper.md`
 
 ```markdown
 ---
@@ -282,7 +312,7 @@ tools:
 
 ### 3.4 子 Agent：`115oper`（预留）
 
-**文件路径**：`.opencode/agent/115oper.md`
+**文件路径**：`.opencode/agents/115oper.md`
 
 ```markdown
 ---
@@ -316,7 +346,7 @@ tools:
 
 ### 4.1 `/clean` 命令
 
-**文件路径**：`.opencode/command/clean.md`
+**文件路径**：`.opencode/commands/clean.md`
 
 ```markdown
 ---
@@ -335,7 +365,7 @@ model: anthropic/claude-sonnet-4-5
 
 ### 4.2 `/organize` 命令
 
-**文件路径**：`.opencode/command/organize.md`
+**文件路径**：`.opencode/commands/organize.md`
 
 ```markdown
 ---
@@ -352,7 +382,7 @@ model: anthropic/claude-sonnet-4-5
 
 ### 4.3 `/status` 命令
 
-**文件路径**：`.opencode/command/status.md`
+**文件路径**：`.opencode/commands/status.md`
 
 ```markdown
 ---
@@ -602,7 +632,7 @@ description: 视频目录清理。扫描并清理非视频文件夹（func1）�
 
 ```bash
 # func1：清理非视频文件夹
-uv run python .opencode/skills/video-cleaner/scripts/plan_clean_folders.py \
+.venv/bin/python .opencode/skills/video-cleaner/scripts/plan_clean_folders.py \
   --root "/path/to/videos" \
   --extensions ".mp4,.mkv,.avi,.wmv,.mov,.flv,.rmvb,.rm,.3gp,.m4v,.m2ts,.ts,.mpg" \
   --min-size 300 \
@@ -610,7 +640,7 @@ uv run python .opencode/skills/video-cleaner/scripts/plan_clean_folders.py \
   --output ".opencode/skills/video-cleaner/plans/"
 
 # func2：清理无用文件
-uv run python .opencode/skills/video-cleaner/scripts/plan_clean_files.py \
+.venv/bin/python .opencode/skills/video-cleaner/scripts/plan_clean_files.py \
   --root "/path/to/videos" \
   --video-extensions ".mp4,.mkv,.avi" \
   --image-extensions ".jpg,.png,.gif,.bmp,.webp" \
@@ -631,7 +661,7 @@ uv run python .opencode/skills/video-cleaner/scripts/plan_clean_files.py \
 **调用方式**：
 
 ```bash
-uv run python .opencode/skills/video-cleaner/scripts/execute_plan.py \
+.venv/bin/python .opencode/skills/video-cleaner/scripts/execute_plan.py \
   --plan ".opencode/skills/video-cleaner/plans/clean_folders_20260220_150000.json"
 ```
 
@@ -762,13 +792,13 @@ description: 视频文件重命名。为含多个视频的文件夹按公共前�
 
 ```bash
 # 仅计划
-uv run python .opencode/skills/video-renamer/scripts/plan_rename.py \
+.venv/bin/python .opencode/skills/video-renamer/scripts/plan_rename.py \
   --root "/path/to/videos" \
   --pattern "number2" \
   --output ".opencode/skills/video-renamer/plans/"
 
 # 仅执行
-uv run python .opencode/skills/video-renamer/scripts/execute_plan.py \
+.venv/bin/python .opencode/skills/video-renamer/scripts/execute_plan.py \
   --plan ".opencode/skills/video-renamer/plans/rename_20260220_150000.json"
 ```
 
@@ -814,7 +844,7 @@ video-actor-organizer/
 ````markdown
 ---
 name: video-actor-organizer
-description: 演员分类整理。解析 NFO 文件提取演员名，按拼音首字母/假名分类。当用户提到"演员分类"、"按演员整理"、"actor classify"时触发。
+description: 演员分类整理。解析 NFO 文件提取演员名，按拼音首字母/假名分类，同时自动识别VR视频。支持日文片假名演员的中文映射记忆系统。当用户提到"演员分类"、"按演员整理"、"actor classify"时触发。
 ---
 
 # 演员分类整理 Skill
@@ -822,36 +852,90 @@ description: 演员分类整理。解析 NFO 文件提取演员名，按拼音�
 ## 功能
 
 1. 扫描视频文件夹，获取第一个 NFO 文件
-2. 解析 NFO 提取演员名和标题
-3. 按演员名分类：
-   - 拼音首字母（A-Z）
+2. 解析 NFO 提取演员名、标题和视频分辨率
+3. **中文映射记忆系统**：
+   - 自动识别包含日文假名的演员名
+   - 查询记忆文件 `memory/actor_mappings.toml` 中的映射关系
+   - 已映射：按中文映射名的拼音首字母分类，目录格式为 `中文名_原名`
+   - 未映射：跳过该演员的视频，记录到未映射列表返回给 Agent
+4. 按演员名分类：
+   - 拼音首字母（A-Z）- 基于中文映射名或原名
    - 假名首字母（A-Z）
-   - 日文名 → 分类 `0`
+   - 日文名（无映射时）→ 暂不分类，等待映射
    - 未知演员 → 分类 `99`
-4. 生成目标路径：`{root}/{category}/{首字}/{演员名}/{标题}/`
+5. 自动识别 VR 视频：
+   - 宽度 > 阈值（默认2000像素）且非 16:9 宽高比的视为 VR 视频
+   - VR 视频生成目标路径：`{root}/BIG/{category}/{首字}/{演员名}/{标题}/`
+   - 普通视频生成目标路径：`{root}/{category}/{首字}/{演员名}/{标题}/`
 
 ## 特殊处理
 
 FC2/PPV 视频如果没有演员信息，自动添加 `FC2-PPV`, `FC2`, `PPV` 作为演员标签。
 
+## 中文映射记忆系统
+
+### 记忆文件
+
+映射关系存储在 `memory/actor_mappings.toml`：
+
+```toml
+[actor_mappings]
+"さつき芽衣" = "月芽衣"
+"あおい空" = "青空"
+"ゆい花" = "由衣花"
+```
+
+### 工作流程
+
+1. **扫描阶段**：
+   - 检测到片假名演员 `さつき芽衣`
+   - 查询映射表 → 找到 `月芽衣`
+   - 生成目标路径：`Y/月/月芽衣_さつき芽衣/`
+
+2. **未映射处理**：
+   - 检测到片假名演员 `新垣あい`
+   - 查询映射表 → 未找到
+   - **不生成**该视频的移动计划
+   - 记录到未映射列表
+
+3. **Agent 处理**：
+   - 脚本输出 `UNMAPPED_ACTORS_START/END` 标记的未映射列表
+   - Agent 读取列表，为每个演员生成合适的中文映射
+   - 更新 `memory/actor_mappings.toml`
+   - 用户可手动编辑映射名以使用喜欢的名称
+
+4. **下次运行**：
+   - 重新扫描时，已映射的演员正常分类
+   - 目录格式：`中文映射名_原名`
+
+### 映射命名示例
+
+| 原名 | 中文映射 | 目标目录 |
+|------|----------|----------|
+| さつき芽衣 | 月芽衣 | `Y/月/月芽衣_さつき芽衣/` |
+| あおい空 | 青空 | `Q/青/青空_あおい空/` |
+| 未映射演员 | - | 暂不移动，等待映射 |
+
 ## 操作模式
 
-三种模式同上。
+三种模式：计划/执行/计划+执行。
 
 ## 调用方式
 
 ```bash
 # 仅计划
-uv run python .opencode/skills/video-actor-organizer/scripts/plan_actor_classify.py \
+.venv/bin/python .opencode/skills/video-actor-organizer/scripts/plan_actor_classify.py \
   --root "/path/to/videos" \
   --unknown-category "99" \
   --japanese-category "0" \
   --title-max-length 10 \
-  --output ".opencode/skills/video-actor-organizer/plans/"
+  --width-threshold 2000 \
+  --big-dir "BIG" \
+  --output "plans/"
 
 # 仅执行
-uv run python .opencode/skills/video-actor-organizer/scripts/execute_plan.py \
-  --plan ".opencode/skills/video-actor-organizer/plans/actor_20260220_150000.json"
+.venv/bin/python .opencode/skills/video-actor-organizer/scripts/execute_plan.py \
+  --plan "plans/actor_20260220_150000.json"
 ```
 
 ## classifier.py
@@ -878,47 +962,7 @@ uv run python .opencode/skills/video-actor-organizer/scripts/execute_plan.py \
 
 ---
 
-### 5.5 video-big-detector（超宽视频检测）
-
-**SKILL.md 内容要点**：
-
-````markdown
----
-name: video-big-detector
-description: 超宽视频检测。扫描 NFO 中视频宽度 > 阈值且非 16:9 的文件夹，移动到 BIG 目录。当用户提到"超宽视频"、"big video"、"宽屏检测"时触发。
----
-
-# 超宽视频检测 Skill
-
-## 功能
-
-1. 扫描视频文件夹，解析 NFO 中的视频宽度和宽高比
-2. 如果宽度 > 阈值（默认 2000）且宽高比 != 16:9，标记为超宽视频
-3. 移动到 `{root}/BIG/{category}/{首字}/{演员名}/{标题}/`
-
-## 操作模式
-
-三种模式同上。
-
-## 调用方式
-
-```bash
-# 仅计划
-uv run python .opencode/skills/video-big-detector/scripts/plan_big_video.py \
-  --root "/path/to/videos" \
-  --width-threshold 2000 \
-  --big-dir "BIG" \
-  --output ".opencode/skills/video-big-detector/plans/"
-```
-
-## 依赖
-
-复用 `classifier.py`（从 video-actor-organizer 复制一份，自包含）。
-````
-
----
-
-### 5.6 movie-organizer（电影整理）
+### 5.5 movie-organizer（电影整理）
 
 **SKILL.md 内容要点**：
 
@@ -966,7 +1010,7 @@ description: 电影整理归档。AI 分析电影信息，重命名文件夹和�
 # }
 
 # 然后调用脚本
-uv run python .opencode/skills/movie-organizer/scripts/plan_movie_organize.py \
+.venv/bin/python .opencode/skills/movie-organizer/scripts/plan_movie_organize.py \
   --root "/path/to/movies" \
   --ai-analysis '{"chinese_name":"霍比特人","english_name":"The.Hobbit.An.Unexpected.Journey","year":2012,"confidence":0.95}' \
   --force-reorganize false \
@@ -1096,7 +1140,7 @@ last_movie_path: /mnt/nas/movies
      - --min-size: 从 config.toml [video] min_size_mb 读取
      - --delete-dir: 从 config.toml [cleanup] delete_dir_name 读取
   4. 执行：
-     bash: uv run python .opencode/skills/video-cleaner/scripts/plan_clean_folders.py \
+     bash: .venv/bin/python .opencode/skills/video-cleaner/scripts/plan_clean_folders.py \
            --root /mnt/nas/jav --extensions ".mp4,.mkv,..." --min-size 300 --delete-dir ".delete" \
            --output .opencode/skills/video-cleaner/plans/
   5. 读取生成的 JSON，向用户展示摘要：
@@ -1106,7 +1150,7 @@ last_movie_path: /mnt/nas/movies
 
 主 agent：
   6. 执行：
-     bash: uv run python .opencode/skills/video-cleaner/scripts/execute_plan.py \
+     bash: .venv/bin/python .opencode/skills/video-cleaner/scripts/execute_plan.py \
            --plan .opencode/skills/video-cleaner/plans/clean_folders_20260220_150000.json
   7. 完成后更新记忆：
      write memory/paths.md: last_clean_path: /mnt/nas/jav
@@ -1138,7 +1182,7 @@ last_movie_path: /mnt/nas/movies
        "confidence": 0.95
      }
   6. 将结果传给脚本：
-     bash: uv run python .opencode/skills/movie-organizer/scripts/plan_movie_organize.py \
+     bash: .venv/bin/python .opencode/skills/movie-organizer/scripts/plan_movie_organize.py \
            --root /mnt/nas/movies \
            --ai-analysis '{"chinese_name":"霍比特人",...}' \
            --force-reorganize false \
